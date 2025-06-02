@@ -39,21 +39,18 @@
             labelexitrgs = new System.Windows.Forms.Label();
             txtusername = new System.Windows.Forms.TextBox();
             txtpassword = new System.Windows.Forms.TextBox();
-            // New controls for Name and Prodi
             pictureBox4 = new System.Windows.Forms.PictureBox();
             txtNama = new System.Windows.Forms.TextBox();
             panel3 = new System.Windows.Forms.Panel();
             pictureBox5 = new System.Windows.Forms.PictureBox();
             cmbProdi = new System.Windows.Forms.ComboBox();
             panel4 = new System.Windows.Forms.Panel();
-
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox4).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox5).BeginInit();
             SuspendLayout();
-
             // 
             // pictureBox1
             // 
@@ -63,7 +60,6 @@
             pictureBox1.Size = new System.Drawing.Size(77, 71);
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
-
             // 
             // labelrgs
             // 
@@ -76,9 +72,8 @@
             labelrgs.Size = new System.Drawing.Size(156, 41);
             labelrgs.TabIndex = 1;
             labelrgs.Text = "REGISTER";
-
             // 
-            // pictureBox2 (NIM icon)
+            // pictureBox2
             // 
             pictureBox2.Image = Properties.Resources.icons8_user_50;
             pictureBox2.Location = new System.Drawing.Point(21, 155);
@@ -88,24 +83,8 @@
             pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             pictureBox2.TabIndex = 2;
             pictureBox2.TabStop = false;
-
             // 
-            // txtusername (NIM)
-            // 
-            txtusername.BackColor = System.Drawing.Color.LightSkyBlue;
-            txtusername.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            txtusername.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-            txtusername.ForeColor = System.Drawing.Color.White;
-            txtusername.Location = new System.Drawing.Point(49, 154);
-            txtusername.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            txtusername.Multiline = true;
-            txtusername.Name = "txtusername";
-            txtusername.PlaceholderText = "NIM";
-            txtusername.Size = new System.Drawing.Size(183, 24);
-            txtusername.TabIndex = 9;
-
-            // 
-            // panel1 (NIM underline)
+            // panel1
             // 
             panel1.BackColor = System.Drawing.Color.Black;
             panel1.Location = new System.Drawing.Point(22, 182);
@@ -113,83 +92,17 @@
             panel1.Name = "panel1";
             panel1.Size = new System.Drawing.Size(210, 1);
             panel1.TabIndex = 3;
-
             // 
-            // pictureBox4 (Name icon)
+            // panel2
             // 
-            pictureBox4.Image = Properties.Resources.icons8_user_50;
-            pictureBox4.Location = new System.Drawing.Point(21, 195);
-            pictureBox4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            pictureBox4.Name = "pictureBox4";
-            pictureBox4.Size = new System.Drawing.Size(22, 25);
-            pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            pictureBox4.TabIndex = 11;
-            pictureBox4.TabStop = false;
-
+            panel2.BackColor = System.Drawing.Color.Black;
+            panel2.Location = new System.Drawing.Point(21, 308);
+            panel2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            panel2.Name = "panel2";
+            panel2.Size = new System.Drawing.Size(210, 1);
+            panel2.TabIndex = 5;
             // 
-            // txtNama
-            // 
-            txtNama.BackColor = System.Drawing.Color.LightSkyBlue;
-            txtNama.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            txtNama.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-            txtNama.ForeColor = System.Drawing.Color.White;
-            txtNama.Location = new System.Drawing.Point(49, 194);
-            txtNama.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            txtNama.Multiline = true;
-            txtNama.Name = "txtNama";
-            txtNama.PlaceholderText = "Nama Lengkap";
-            txtNama.Size = new System.Drawing.Size(183, 24);
-            txtNama.TabIndex = 12;
-
-            // 
-            // panel3 (Name underline)
-            // 
-            panel3.BackColor = System.Drawing.Color.Black;
-            panel3.Location = new System.Drawing.Point(22, 222);
-            panel3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            panel3.Name = "panel3";
-            panel3.Size = new System.Drawing.Size(210, 1);
-            panel3.TabIndex = 13;
-
-            // 
-            // pictureBox5 (Prodi icon)
-            // 
-            pictureBox5.Image = Properties.Resources.icons8_user_50;
-            pictureBox5.Location = new System.Drawing.Point(21, 235);
-            pictureBox5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            pictureBox5.Name = "pictureBox5";
-            pictureBox5.Size = new System.Drawing.Size(22, 25);
-            pictureBox5.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            pictureBox5.TabIndex = 14;
-            pictureBox5.TabStop = false;
-
-            // 
-            // cmbProdi
-            // 
-            cmbProdi.BackColor = System.Drawing.Color.LightSkyBlue;
-            cmbProdi.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            cmbProdi.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-            cmbProdi.ForeColor = System.Drawing.Color.White;
-            cmbProdi.FormattingEnabled = true;
-            cmbProdi.Location = new System.Drawing.Point(49, 234);
-            cmbProdi.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            cmbProdi.Name = "cmbProdi";
-            cmbProdi.Size = new System.Drawing.Size(183, 30);
-            cmbProdi.TabIndex = 15;
-            cmbProdi.Text = "Pilih Program Studi";
-
-            // 
-            // panel4 (Prodi underline)
-            // 
-            panel4.BackColor = System.Drawing.Color.Black;
-            panel4.Location = new System.Drawing.Point(22, 267);
-            panel4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            panel4.Name = "panel4";
-            panel4.Size = new System.Drawing.Size(210, 1);
-            panel4.TabIndex = 16;
-
-            // 
-            // pictureBox3 (Password icon)
+            // pictureBox3
             // 
             pictureBox3.Image = Properties.Resources.icons8_password_100;
             pictureBox3.Location = new System.Drawing.Point(20, 280);
@@ -199,45 +112,6 @@
             pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             pictureBox3.TabIndex = 4;
             pictureBox3.TabStop = false;
-
-            // 
-            // txtpassword
-            // 
-            txtpassword.BackColor = System.Drawing.Color.LightSkyBlue;
-            txtpassword.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            txtpassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-            txtpassword.ForeColor = System.Drawing.Color.White;
-            txtpassword.Location = new System.Drawing.Point(49, 280);
-            txtpassword.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            txtpassword.Multiline = true;
-            txtpassword.Name = "txtpassword";
-            txtpassword.PlaceholderText = "Password";
-            txtpassword.Size = new System.Drawing.Size(183, 24);
-            txtpassword.TabIndex = 10;
-            txtpassword.UseSystemPasswordChar = true;
-
-            // 
-            // panel2 (Password underline)
-            // 
-            panel2.BackColor = System.Drawing.Color.Black;
-            panel2.Location = new System.Drawing.Point(21, 308);
-            panel2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            panel2.Name = "panel2";
-            panel2.Size = new System.Drawing.Size(210, 1);
-            panel2.TabIndex = 5;
-
-            // 
-            // label2 (Clear)
-            // 
-            label2.AutoSize = true;
-            label2.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
-            label2.Location = new System.Drawing.Point(191, 315);
-            label2.Name = "label2";
-            label2.Size = new System.Drawing.Size(40, 19);
-            label2.TabIndex = 7;
-            label2.Text = "Clear";
-            label2.Click += label2_Click;
-
             // 
             // btnrgs
             // 
@@ -254,7 +128,17 @@
             btnrgs.Text = "REGISTER";
             btnrgs.UseVisualStyleBackColor = false;
             btnrgs.Click += btnrgs_Click;
-
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
+            label2.Location = new System.Drawing.Point(191, 315);
+            label2.Name = "label2";
+            label2.Size = new System.Drawing.Size(40, 19);
+            label2.TabIndex = 7;
+            label2.Text = "Clear";
+            label2.Click += label2_Click;
             // 
             // labelexitrgs
             // 
@@ -266,7 +150,104 @@
             labelexitrgs.TabIndex = 8;
             labelexitrgs.Text = "Exit";
             labelexitrgs.Click += labelexitrgs_Click;
-
+            // 
+            // txtusername
+            // 
+            txtusername.BackColor = System.Drawing.Color.LightSkyBlue;
+            txtusername.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            txtusername.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            txtusername.ForeColor = System.Drawing.Color.White;
+            txtusername.Location = new System.Drawing.Point(49, 154);
+            txtusername.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            txtusername.Multiline = true;
+            txtusername.Name = "txtusername";
+            txtusername.PlaceholderText = "NIM";
+            txtusername.Size = new System.Drawing.Size(183, 24);
+            txtusername.TabIndex = 9;
+            // 
+            // txtpassword
+            // 
+            txtpassword.BackColor = System.Drawing.Color.LightSkyBlue;
+            txtpassword.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            txtpassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            txtpassword.ForeColor = System.Drawing.Color.White;
+            txtpassword.Location = new System.Drawing.Point(49, 280);
+            txtpassword.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            txtpassword.Multiline = true;
+            txtpassword.Name = "txtpassword";
+            txtpassword.PlaceholderText = "Password";
+            txtpassword.Size = new System.Drawing.Size(183, 24);
+            txtpassword.TabIndex = 10;
+            txtpassword.UseSystemPasswordChar = true;
+            // 
+            // pictureBox4
+            // 
+            pictureBox4.Image = Properties.Resources.icons8_user_50;
+            pictureBox4.Location = new System.Drawing.Point(21, 195);
+            pictureBox4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            pictureBox4.Name = "pictureBox4";
+            pictureBox4.Size = new System.Drawing.Size(22, 25);
+            pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            pictureBox4.TabIndex = 11;
+            pictureBox4.TabStop = false;
+            // 
+            // txtNama
+            // 
+            txtNama.BackColor = System.Drawing.Color.LightSkyBlue;
+            txtNama.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            txtNama.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            txtNama.ForeColor = System.Drawing.Color.White;
+            txtNama.Location = new System.Drawing.Point(49, 194);
+            txtNama.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            txtNama.Multiline = true;
+            txtNama.Name = "txtNama";
+            txtNama.PlaceholderText = "Nama Lengkap";
+            txtNama.Size = new System.Drawing.Size(183, 24);
+            txtNama.TabIndex = 12;
+            // 
+            // panel3
+            // 
+            panel3.BackColor = System.Drawing.Color.Black;
+            panel3.Location = new System.Drawing.Point(22, 222);
+            panel3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            panel3.Name = "panel3";
+            panel3.Size = new System.Drawing.Size(210, 1);
+            panel3.TabIndex = 13;
+            // 
+            // pictureBox5
+            // 
+            pictureBox5.Image = Properties.Resources.icons8_user_50;
+            pictureBox5.Location = new System.Drawing.Point(21, 235);
+            pictureBox5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            pictureBox5.Name = "pictureBox5";
+            pictureBox5.Size = new System.Drawing.Size(22, 25);
+            pictureBox5.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            pictureBox5.TabIndex = 14;
+            pictureBox5.TabStop = false;
+            // 
+            // cmbProdi
+            // 
+            cmbProdi.BackColor = System.Drawing.Color.LightSkyBlue;
+            cmbProdi.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            cmbProdi.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            cmbProdi.ForeColor = System.Drawing.Color.White;
+            cmbProdi.FormattingEnabled = true;
+            cmbProdi.Location = new System.Drawing.Point(49, 234);
+            cmbProdi.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            cmbProdi.Name = "cmbProdi";
+            cmbProdi.Size = new System.Drawing.Size(183, 30);
+            cmbProdi.TabIndex = 15;
+            cmbProdi.Text = "Program Studi";
+            cmbProdi.SelectedIndexChanged += cmbProdi_SelectedIndexChanged;
+            // 
+            // panel4
+            // 
+            panel4.BackColor = System.Drawing.Color.Black;
+            panel4.Location = new System.Drawing.Point(22, 267);
+            panel4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            panel4.Name = "panel4";
+            panel4.Size = new System.Drawing.Size(210, 1);
+            panel4.TabIndex = 16;
             // 
             // Register
             // 

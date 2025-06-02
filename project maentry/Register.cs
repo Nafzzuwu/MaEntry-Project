@@ -194,6 +194,7 @@ namespace project_maentry
 
                             Login loginform = new Login();
                             loginform.Show();
+                            this.Close();
                         }
                         catch (Exception)
                         {
@@ -226,6 +227,11 @@ namespace project_maentry
                 cmbProdi.SelectedIndex = -1;
                 cmbProdi.Text = "Pilih Program Studi";
             }
+        }
+
+        private void cmbProdi_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 

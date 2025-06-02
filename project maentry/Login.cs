@@ -26,37 +26,58 @@ namespace project_maentry
             using (var conn = Database.GetConnection())
             {
                 conn.Open();
-                string query = "SELECT role FROM users WHERE username=@username AND password=md5(@password);";
+
+                // Query untuk login dan mendapatkan informasi user
+                string query = @"
+                    SELECT u.role, u.user_id, m.nim, d.nip 
+                    FROM users u
+                    LEFT JOIN mahasiswa m ON u.user_id = m.user_id
+                    LEFT JOIN dosen d ON u.user_id = d.user_id
+                    WHERE u.username = @username AND u.password = md5(@password)";
+
                 using (var cmd = new NpgsqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@username", username);
                     cmd.Parameters.AddWithValue("@password", password);
 
-                    var role = cmd.ExecuteScalar();
-
-                    if (role != null)
+                    using (var reader = cmd.ExecuteReader())
                     {
-                        string userRole = role.ToString();
-                        MessageBox.Show("Login berhasil sebagai " + userRole, "Informasi", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                        // Arahkan ke form UI sesuai role
-                        if (userRole == "dosen")
+                        if (reader.Read())
                         {
-                            new dosenUI().Show();
-                        }
-                        else if (userRole == "mahasiswa")
-                        {
-                            new mahasiswaUI().Show();
-                        }
+                            string userRole = reader["role"].ToString();
 
-                        this.Hide();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Username atau password salah, silakan coba lagi.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        txtusername.Clear();
-                        txtpassword.Clear();
-                        txtusername.Focus();
+                            MessageBox.Show("Login berhasil sebagai " + userRole, "Informasi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                            // Arahkan ke form UI sesuai role
+                            if (userRole == "dosen")
+                            {
+                                new dosenUI().Show();
+                            }
+                            else if (userRole == "mahasiswa")
+                            {
+                                // Ambil NIM dari hasil query
+                                string nim = reader["nim"]?.ToString() ?? "";
+
+                                if (!string.IsNullOrEmpty(nim))
+                                {
+                                    new mahasiswaUI(nim).Show();
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Data mahasiswa tidak ditemukan.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    return;
+                                }
+                            }
+
+                            this.Hide();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Username atau password salah, silakan coba lagi.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            txtusername.Clear();
+                            txtpassword.Clear();
+                            txtusername.Focus();
+                        }
                     }
                 }
             }

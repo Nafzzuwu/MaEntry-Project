@@ -41,6 +41,8 @@
             txtpassword = new System.Windows.Forms.TextBox();
             label4 = new System.Windows.Forms.Label();
             lblregis = new System.Windows.Forms.Label();
+            lblUsername = new System.Windows.Forms.Label();
+            lblPassword = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
@@ -99,7 +101,7 @@
             // pictureBox3
             // 
             pictureBox3.Image = Properties.Resources.icons8_password_100;
-            pictureBox3.Location = new System.Drawing.Point(20, 252);
+            pictureBox3.Location = new System.Drawing.Point(20, 253);
             pictureBox3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             pictureBox3.Name = "pictureBox3";
             pictureBox3.Size = new System.Drawing.Size(22, 25);
@@ -151,7 +153,7 @@
             txtusername.BorderStyle = System.Windows.Forms.BorderStyle.None;
             txtusername.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             txtusername.ForeColor = System.Drawing.Color.White;
-            txtusername.Location = new System.Drawing.Point(49, 184);
+            txtusername.Location = new System.Drawing.Point(49, 185);
             txtusername.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             txtusername.Multiline = true;
             txtusername.Name = "txtusername";
@@ -164,10 +166,11 @@
             txtpassword.BorderStyle = System.Windows.Forms.BorderStyle.None;
             txtpassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             txtpassword.ForeColor = System.Drawing.Color.White;
-            txtpassword.Location = new System.Drawing.Point(49, 252);
+            txtpassword.Location = new System.Drawing.Point(49, 253);
             txtpassword.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             txtpassword.Multiline = true;
             txtpassword.Name = "txtpassword";
+            txtpassword.PasswordChar = '*';
             txtpassword.Size = new System.Drawing.Size(183, 24);
             txtpassword.TabIndex = 10;
             // 
@@ -193,12 +196,38 @@
             lblregis.Text = "Register";
             lblregis.Click += label5_Click;
             // 
+            // lblUsername
+            // 
+            lblUsername.AutoSize = true;
+            lblUsername.BackColor = System.Drawing.Color.LightSkyBlue;
+            lblUsername.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            lblUsername.ForeColor = System.Drawing.Color.Black;
+            lblUsername.Location = new System.Drawing.Point(21, 160);
+            lblUsername.Name = "lblUsername";
+            lblUsername.Size = new System.Drawing.Size(87, 23);
+            lblUsername.TabIndex = 13;
+            lblUsername.Text = "Username";
+            // 
+            // lblPassword
+            // 
+            lblPassword.AutoSize = true;
+            lblPassword.BackColor = System.Drawing.Color.LightSkyBlue;
+            lblPassword.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            lblPassword.ForeColor = System.Drawing.Color.Black;
+            lblPassword.Location = new System.Drawing.Point(21, 228);
+            lblPassword.Name = "lblPassword";
+            lblPassword.Size = new System.Drawing.Size(82, 23);
+            lblPassword.TabIndex = 14;
+            lblPassword.Text = "Password";
+            // 
             // Login
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = System.Drawing.Color.LightSkyBlue;
             ClientSize = new System.Drawing.Size(247, 430);
+            Controls.Add(lblPassword);
+            Controls.Add(lblUsername);
             Controls.Add(lblregis);
             Controls.Add(label4);
             Controls.Add(txtpassword);
@@ -241,6 +270,7 @@
         private System.Windows.Forms.TextBox txtpassword;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label lblregis;
+        private System.Windows.Forms.Label lblUsername;
+        private System.Windows.Forms.Label lblPassword;
     }
 }
-
