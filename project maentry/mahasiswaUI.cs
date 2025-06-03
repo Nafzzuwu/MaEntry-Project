@@ -545,12 +545,16 @@ namespace project_maentry
                 {
                     conn.Open();
 
+                    // Ambil data matakuliah tanpa informasi dosen (karena tabel Jadwal tidak punya kolom nip)
                     string getMataKuliahQuery = @"
-                        SELECT mk.matakuliah_id, mk.nama_matakuliah, m.nama
-                        FROM Jadwal j
-                        JOIN MataKuliah mk ON j.matakuliah_id = mk.matakuliah_id
-                        JOIN Mahasiswa m ON m.nim = @nim
-                        WHERE j.jadwal_id = @jadwal_id";
+                SELECT 
+                    mk.matakuliah_id, 
+                    mk.nama_matakuliah, 
+                    m.nama
+                FROM Jadwal j
+                JOIN MataKuliah mk ON j.matakuliah_id = mk.matakuliah_id
+                JOIN Mahasiswa m ON m.nim = @nim
+                WHERE j.jadwal_id = @jadwal_id";
 
                     int matakuliahId = 0;
                     string namaMataKuliah = "";
@@ -572,16 +576,29 @@ namespace project_maentry
                         }
                     }
 
+                    if (matakuliahId == 0)
+                    {
+                        MessageBox.Show("Data jadwal tidak ditemukan!", "Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    // Insert absensi tanpa informasi dosen (set ke NULL)
                     string insertQuery = @"
-                        INSERT INTO Form_Absensi (nim, nama_mahasiswa, nip, nama_dosen, tanggal, waktu, status, matakuliah_id)
-                        VALUES (@nim, @nama_mahasiswa, 'TBA', 'TBA', @tanggal, @waktu, @status, @matakuliah_id)
-                        ON CONFLICT (nim, matakuliah_id, tanggal) 
-                        DO UPDATE SET status = @status, waktu = @waktu";
+                INSERT INTO Form_Absensi (nim, nama_mahasiswa, nip, nama_dosen, tanggal, waktu, status, matakuliah_id)
+                VALUES (@nim, @nama_mahasiswa, @nip, @nama_dosen, @tanggal, @waktu, @status, @matakuliah_id)
+                ON CONFLICT (nim, matakuliah_id, tanggal) 
+                DO UPDATE SET status = @status, waktu = @waktu";
 
                     using (NpgsqlCommand cmd = new NpgsqlCommand(insertQuery, conn))
                     {
                         cmd.Parameters.AddWithValue("@nim", currentNim);
                         cmd.Parameters.AddWithValue("@nama_mahasiswa", namaMahasiswa);
+
+                        // Set NIP dan nama_dosen ke NULL karena tidak ada informasi dosen
+                        cmd.Parameters.AddWithValue("@nip", DBNull.Value);
+                        cmd.Parameters.AddWithValue("@nama_dosen", DBNull.Value);
+
                         cmd.Parameters.AddWithValue("@tanggal", DateTime.Now.Date);
                         cmd.Parameters.AddWithValue("@waktu", DateTime.Now.TimeOfDay);
                         cmd.Parameters.AddWithValue("@status", status);
