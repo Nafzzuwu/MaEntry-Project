@@ -1,3 +1,9 @@
+SELECT * FROM matakuliah
+SELECT * FROM Jadwal
+SELECT * FROM Users                --Query Untuk Melihat Table
+SELECT * FROM mahasiswa
+SELECT * FROM prodi
+
 -- 1. Tabel Users (Login untuk semua user: mahasiswa & dosen)
 CREATE TABLE Users (
     user_id SERIAL PRIMARY KEY,
@@ -73,3 +79,8 @@ INSERT INTO MataKuliah (nama_matakuliah, prodi_id) VALUES
 ('Pemrograman Berorientasi Objek', 1),
 ('Basis Data', 1),
 ('Etika Profesi', 2);
+
+-- TO ADD DATA JADWAL
+INSERT INTO Jadwal (matakuliah_id, hari, jam_mulai, jam_selesai) VALUES
+(2, 'Tuesday', '08:00', '09:40'),
+(2, 'Thursday', '10:00', '11:40');
