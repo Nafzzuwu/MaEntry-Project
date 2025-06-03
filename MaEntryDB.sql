@@ -75,16 +75,6 @@ INSERT INTO Prodi (nama_prodi) VALUES
 ('Sistem Informasi'),
 ('Infromatika');
 
-INSERT INTO MataKuliah (nama_matakuliah, prodi_id) VALUES
-('Pemrograman Berorientasi Objek', 1),
-('Basis Data', 1),
-('Etika Profesi', 2);
-
--- TO ADD DATA JADWAL
-INSERT INTO Jadwal (matakuliah_id, hari, jam_mulai, jam_selesai) VALUES
-(2, 'Tuesday', '08:00', '09:40'),
-(2, 'Thursday', '10:00', '11:40');
-
 --MENAMBAHKAN KOLOM NIP PADA TABEL MATAKULIAH
 ALTER TABLE MataKuliah ADD COLUMN nip character varying(16);
 ALTER TABLE MataKuliah ADD CONSTRAINT fk_matakuliah_dosen 
@@ -170,6 +160,14 @@ WHERE nama_matakuliah IN (
     'Jaringan Komputer (PRAKTIKUM)',
     'Sistem Operasi (PRAKTIKUM)'
 );
+
+--TAMBAH KOLOM PRODI_ID PADA TABEL JADWAL
+ALTER TABLE Jadwal
+ADD COLUMN prodi_id INT;
+
+ALTER TABLE Jadwal
+ADD CONSTRAINT fk_jadwal_prodi
+FOREIGN KEY (prodi_id) REFERENCES Prodi(prodi_id);
 
 --MENGSET TABEL FORM_ABSENSI NIP AGAR BISA NULL
 ALTER TABLE Form_Absensi
