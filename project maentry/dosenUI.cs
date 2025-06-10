@@ -280,7 +280,7 @@ namespace project_maentry
                                           $"{row.Cells["nama_prodi"].Value}," +
                                           $"{row.Cells["nama_matakuliah"].Value}," +
                                           $"{row.Cells["tanggal"].Value}," +
-                                          $"{row.Cells["waktu"].Value}," +
+                                          $"{row.Cells["waktu_display"].Value}," +
                                           $"{row.Cells["status"].Value}");
                         }
                     }
@@ -352,158 +352,166 @@ namespace project_maentry
                 {
                     connection.Open();
 
-                    // Query yang disesuaikan dengan schema database yang benar
+                    // Query yang disesuaikan dengan handling waktu yang benar
                     string query = @"
                         SELECT 
                             fa.id_absensi,
                             fa.nim,
                             fa.nama_mahasiswa as nama,
-                            fa.tanggal,
+                            TO_CHAR(fa.tanggal, 'YYYY-MM-DD') as tanggal,
+                            CASE 
+                                WHEN fa.waktu IS NOT NULL THEN 
+                                    TO_CHAR(fa.waktu, 'HH24:MI:SS')
+                                ELSE 
+                                    NULL
+                            END as waktu_display,
                             fa.waktu,
                             fa.status,
-                            mk.nama_matakuliah,
-                            p.nama_prodi
+                            COALESCE(mk.nama_matakuliah, 'Tidak Diketahui') as nama_matakuliah,
+                            COALESCE(p.nama_prodi, 'Tidak Diketahui') as nama_prodi
                         FROM Form_Absensi fa
                         LEFT JOIN MataKuliah mk ON fa.matakuliah_id = mk.matakuliah_id
                         LEFT JOIN Prodi p ON mk.prodi_id = p.prodi_id
                         WHERE fa.tanggal = CURRENT_DATE
-                        ORDER BY fa.waktu ASC";
+                        ORDER BY fa.waktu ASC NULLS LAST";
 
-                    using (var adapter = new NpgsqlDataAdapter(query, connection))
+                    using (var command = new NpgsqlCommand(query, connection))
                     {
-                        DataTable dataTable = new DataTable();
-                        adapter.Fill(dataTable);
-
-                        // Set data ke DataGridView
-                        attendanceGrid.DataSource = dataTable;
-
-                        // Update total mahasiswa hadir dengan emoticon
-                        int totalStudents = dataTable.Rows.Count;
-                        totalStudentsLabel.Text = $"👥 Total Mahasiswa Hadir: {totalStudents}";
-                        totalStudentsLabel.ForeColor = totalStudents > 0 ? Color.FromArgb(34, 139, 34) : Color.Orange;
-
-                        // Hitung statistik kehadiran berdasarkan status yang ada di database
-                        int hadir = 0, izin = 0, alpa = 0;
-
-                        foreach (DataRow row in dataTable.Rows)
+                        using (var adapter = new NpgsqlDataAdapter(command))
                         {
-                            string status = row["status"].ToString().ToLower();
-                            switch (status)
+                            DataTable dataTable = new DataTable();
+                            adapter.Fill(dataTable);
+
+                            // Set data ke DataGridView
+                            attendanceGrid.DataSource = dataTable;
+
+                            // Update total mahasiswa hadir dengan emoticon
+                            int totalStudents = dataTable.Rows.Count;
+                            totalStudentsLabel.Text = $"👥 Total Mahasiswa Hadir: {totalStudents}";
+                            totalStudentsLabel.ForeColor = totalStudents > 0 ? Color.FromArgb(34, 139, 34) : Color.Orange;
+
+                            // Hitung statistik kehadiran berdasarkan status yang ada di database
+                            int hadir = 0, izin = 0, alpa = 0;
+
+                            foreach (DataRow row in dataTable.Rows)
                             {
-                                case "hadir":
-                                    hadir++;
-                                    break;
-                                case "izin":
-                                    izin++;
-                                    break;
-                                case "alpa":
-                                    alpa++;
-                                    break;
-                            }
-                        }
-
-                        // Update summary label
-                        summaryLabel.Text = $"✅ Hadir: {hadir} | ⚠ Izin: {izin} | ❌ Alpa: {alpa}";
-
-                        // Customize column headers jika ada data
-                        if (attendanceGrid.Columns.Count > 0)
-                        {
-                            // Hide ID column
-                            if (attendanceGrid.Columns.Contains("id_absensi"))
-                                attendanceGrid.Columns["id_absensi"].Visible = false;
-
-                            // Set header text dengan emoji
-                            if (attendanceGrid.Columns.Contains("nim"))
-                                attendanceGrid.Columns["nim"].HeaderText = "🎓 NIM";
-                            if (attendanceGrid.Columns.Contains("nama"))
-                                attendanceGrid.Columns["nama"].HeaderText = "📝 Nama Mahasiswa";
-                            if (attendanceGrid.Columns.Contains("tanggal"))
-                                attendanceGrid.Columns["tanggal"].HeaderText = "📅 Tanggal";
-                            if (attendanceGrid.Columns.Contains("waktu"))
-                                attendanceGrid.Columns["waktu"].HeaderText = "⏰ Waktu";
-                            if (attendanceGrid.Columns.Contains("status"))
-                                attendanceGrid.Columns["status"].HeaderText = "✅ Status";
-                            if (attendanceGrid.Columns.Contains("nama_matakuliah"))
-                                attendanceGrid.Columns["nama_matakuliah"].HeaderText = "📚 Mata Kuliah";
-                            if (attendanceGrid.Columns.Contains("nama_prodi"))
-                                attendanceGrid.Columns["nama_prodi"].HeaderText = "🏫 Program Studi";
-
-                            // Set column widths proportionally
-                            if (attendanceGrid.Columns.Contains("nama"))
-                                attendanceGrid.Columns["nama"].FillWeight = 25;
-                            if (attendanceGrid.Columns.Contains("nim"))
-                                attendanceGrid.Columns["nim"].FillWeight = 15;
-                            if (attendanceGrid.Columns.Contains("nama_prodi"))
-                                attendanceGrid.Columns["nama_prodi"].FillWeight = 15;
-                            if (attendanceGrid.Columns.Contains("nama_matakuliah"))
-                                attendanceGrid.Columns["nama_matakuliah"].FillWeight = 20;
-                            if (attendanceGrid.Columns.Contains("tanggal"))
-                                attendanceGrid.Columns["tanggal"].FillWeight = 12;
-                            if (attendanceGrid.Columns.Contains("waktu"))
-                                attendanceGrid.Columns["waktu"].FillWeight = 10;
-                            if (attendanceGrid.Columns.Contains("status"))
-                                attendanceGrid.Columns["status"].FillWeight = 13;
-
-                            // Center align untuk kolom tertentu
-                            if (attendanceGrid.Columns.Contains("nim"))
-                                attendanceGrid.Columns["nim"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                            if (attendanceGrid.Columns.Contains("tanggal"))
-                                attendanceGrid.Columns["tanggal"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                            if (attendanceGrid.Columns.Contains("waktu"))
-                                attendanceGrid.Columns["waktu"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                            if (attendanceGrid.Columns.Contains("status"))
-                                attendanceGrid.Columns["status"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-
-                            // Format waktu dan tanggal
-                            if (attendanceGrid.Columns.Contains("waktu"))
-                                attendanceGrid.Columns["waktu"].DefaultCellStyle.Format = "HH:mm:ss";
-                            if (attendanceGrid.Columns.Contains("tanggal"))
-                                attendanceGrid.Columns["tanggal"].DefaultCellStyle.Format = "dd/MM/yyyy";
-                        }
-
-                        // Color coding berdasarkan status kehadiran
-                        foreach (DataGridViewRow row in attendanceGrid.Rows)
-                        {
-                            if (row.Cells["status"] != null && row.Cells["status"].Value != null)
-                            {
-                                string status = row.Cells["status"].Value.ToString().ToLower();
-                                switch (status)
+                                if (row["status"] != DBNull.Value)
                                 {
-                                    case "hadir":
-                                        row.DefaultCellStyle.BackColor = Color.FromArgb(144, 238, 144);
-                                        break;
-                                    case "izin":
-                                        row.DefaultCellStyle.BackColor = Color.FromArgb(255, 255, 224);
-                                        break;
-                                    case "alpa":
-                                        row.DefaultCellStyle.BackColor = Color.FromArgb(255, 182, 193);
-                                        break;
+                                    string status = row["status"].ToString().ToLower();
+                                    switch (status)
+                                    {
+                                        case "hadir":
+                                            hadir++;
+                                            break;
+                                        case "izin":
+                                            izin++;
+                                            break;
+                                        case "alpa":
+                                            alpa++;
+                                            break;
+                                    }
                                 }
                             }
-                        }
 
-                        // Update status label dengan detail
-                        statusLabel.Text = $"🟢 Aktif | ✅{hadir} ⚠{izin} ❌{alpa}";
-                        statusLabel.ForeColor = Color.Green;
+                            // Update summary label
+                            summaryLabel.Text = $"✅ Hadir: {hadir} | ⚠ Izin: {izin} | ❌ Alpa: {alpa}";
 
-                        // Show message jika tidak ada data
-                        if (totalStudents == 0)
-                        {
-                            // Buat row untuk pesan "tidak ada data"
-                            DataRow emptyRow = dataTable.NewRow();
-                            emptyRow["nama"] = "Belum ada mahasiswa yang hadir hari ini";
-                            emptyRow["nim"] = "-";
-                            emptyRow["nama_prodi"] = "-";
-                            emptyRow["nama_matakuliah"] = "-";
-                            emptyRow["tanggal"] = DateTime.Now.ToString("yyyy-MM-dd");
-                            emptyRow["waktu"] = DBNull.Value;
-                            emptyRow["status"] = "Info";
-                            dataTable.Rows.Add(emptyRow);
+                            // Customize column headers jika ada data
+                            if (attendanceGrid.Columns.Count > 0)
+                            {
+                                // Hide columns yang tidak perlu ditampilkan
+                                if (attendanceGrid.Columns.Contains("id_absensi"))
+                                    attendanceGrid.Columns["id_absensi"].Visible = false;
+                                if (attendanceGrid.Columns.Contains("waktu"))
+                                    attendanceGrid.Columns["waktu"].Visible = false;
 
-                            attendanceGrid.DataSource = dataTable;
-                            attendanceGrid.Rows[0].DefaultCellStyle.BackColor = Color.FromArgb(245, 245, 245);
-                            attendanceGrid.Rows[0].DefaultCellStyle.ForeColor = Color.Gray;
-                            attendanceGrid.Rows[0].DefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Italic);
+                                // Set header text dengan emoji
+                                if (attendanceGrid.Columns.Contains("nim"))
+                                    attendanceGrid.Columns["nim"].HeaderText = "🎓 NIM";
+                                if (attendanceGrid.Columns.Contains("nama"))
+                                    attendanceGrid.Columns["nama"].HeaderText = "📝 Nama Mahasiswa";
+                                if (attendanceGrid.Columns.Contains("tanggal"))
+                                    attendanceGrid.Columns["tanggal"].HeaderText = "📅 Tanggal";
+                                if (attendanceGrid.Columns.Contains("waktu_display"))
+                                    attendanceGrid.Columns["waktu_display"].HeaderText = "⏰ Waktu";
+                                if (attendanceGrid.Columns.Contains("status"))
+                                    attendanceGrid.Columns["status"].HeaderText = "✅ Status";
+                                if (attendanceGrid.Columns.Contains("nama_matakuliah"))
+                                    attendanceGrid.Columns["nama_matakuliah"].HeaderText = "📚 Mata Kuliah";
+                                if (attendanceGrid.Columns.Contains("nama_prodi"))
+                                    attendanceGrid.Columns["nama_prodi"].HeaderText = "🏫 Program Studi";
+
+                                // Set column widths proportionally
+                                if (attendanceGrid.Columns.Contains("nama"))
+                                    attendanceGrid.Columns["nama"].FillWeight = 25;
+                                if (attendanceGrid.Columns.Contains("nim"))
+                                    attendanceGrid.Columns["nim"].FillWeight = 15;
+                                if (attendanceGrid.Columns.Contains("nama_prodi"))
+                                    attendanceGrid.Columns["nama_prodi"].FillWeight = 15;
+                                if (attendanceGrid.Columns.Contains("nama_matakuliah"))
+                                    attendanceGrid.Columns["nama_matakuliah"].FillWeight = 20;
+                                if (attendanceGrid.Columns.Contains("tanggal"))
+                                    attendanceGrid.Columns["tanggal"].FillWeight = 12;
+                                if (attendanceGrid.Columns.Contains("waktu_display"))
+                                    attendanceGrid.Columns["waktu_display"].FillWeight = 10;
+                                if (attendanceGrid.Columns.Contains("status"))
+                                    attendanceGrid.Columns["status"].FillWeight = 13;
+
+                                // Center align untuk kolom tertentu
+                                if (attendanceGrid.Columns.Contains("nim"))
+                                    attendanceGrid.Columns["nim"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                                if (attendanceGrid.Columns.Contains("tanggal"))
+                                    attendanceGrid.Columns["tanggal"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                                if (attendanceGrid.Columns.Contains("waktu_display"))
+                                    attendanceGrid.Columns["waktu_display"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                                if (attendanceGrid.Columns.Contains("status"))
+                                    attendanceGrid.Columns["status"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                            }
+
+                            // Color coding berdasarkan status kehadiran
+                            foreach (DataGridViewRow row in attendanceGrid.Rows)
+                            {
+                                if (row.Cells["status"] != null && row.Cells["status"].Value != null && row.Cells["status"].Value != DBNull.Value)
+                                {
+                                    string status = row.Cells["status"].Value.ToString().ToLower();
+                                    switch (status)
+                                    {
+                                        case "hadir":
+                                            row.DefaultCellStyle.BackColor = Color.FromArgb(144, 238, 144);
+                                            break;
+                                        case "izin":
+                                            row.DefaultCellStyle.BackColor = Color.FromArgb(255, 255, 224);
+                                            break;
+                                        case "alpa":
+                                            row.DefaultCellStyle.BackColor = Color.FromArgb(255, 182, 193);
+                                            break;
+                                    }
+                                }
+                            }
+
+                            // Update status label dengan detail
+                            statusLabel.Text = $"🟢 Aktif | ✅{hadir} ⚠{izin} ❌{alpa}";
+                            statusLabel.ForeColor = Color.Green;
+
+                            // Show message jika tidak ada data
+                            if (totalStudents == 0)
+                            {
+                                // Buat row untuk pesan "tidak ada data"
+                                DataRow emptyRow = dataTable.NewRow();
+                                emptyRow["nama"] = "Belum ada mahasiswa yang hadir hari ini";
+                                emptyRow["nim"] = "-";
+                                emptyRow["nama_prodi"] = "-";
+                                emptyRow["nama_matakuliah"] = "-";
+                                emptyRow["tanggal"] = DateTime.Now.ToString("yyyy-MM-dd");
+                                emptyRow["waktu_display"] = "-";
+                                emptyRow["status"] = "Info";
+                                dataTable.Rows.Add(emptyRow);
+
+                                attendanceGrid.DataSource = dataTable;
+                                attendanceGrid.Rows[0].DefaultCellStyle.BackColor = Color.FromArgb(245, 245, 245);
+                                attendanceGrid.Rows[0].DefaultCellStyle.ForeColor = Color.Gray;
+                                attendanceGrid.Rows[0].DefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Italic);
+                            }
                         }
                     }
                 }
