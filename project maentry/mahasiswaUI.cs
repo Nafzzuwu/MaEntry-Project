@@ -342,6 +342,7 @@ namespace project_maentry
             LoadScheduleForDay(today);
         }
 
+        // Perbaikan untuk method LoadTodayAttendance - dengan fitur auto alpa
         private void LoadTodayAttendance()
         {
             try
@@ -352,23 +353,22 @@ namespace project_maentry
                 using (NpgsqlConnection conn = maentry.Database.GetConnection())
                 {
                     conn.Open();
-                    // Perbaiki query untuk mengikuti pola yang sama dengan LoadScheduleForDay
                     string query = @"
-                SELECT 
-                    j.jadwal_id,
-                    CONCAT(j.jam_mulai, ' - ', j.jam_selesai) as Waktu,
-                    mk.nama_matakuliah as MataKuliah,
-                    COALESCE(d.nama, 'Belum Ditentukan') as Dosen,
-                    COALESCE(fa.status, 'Belum Absen') as Status,
-                    j.jam_mulai,
-                    j.jam_selesai
-                FROM Jadwal j
-                JOIN MataKuliah mk ON j.matakuliah_id = mk.matakuliah_id
-                LEFT JOIN Dosen d ON mk.nip = d.nip
-                LEFT JOIN Form_Absensi fa ON fa.matakuliah_id = mk.matakuliah_id 
-                    AND fa.nim = @nim AND fa.tanggal = CURRENT_DATE
-                WHERE j.hari = @hari AND mk.prodi_id = @prodi_id
-                ORDER BY j.jam_mulai";
+                        SELECT 
+                            j.jadwal_id,
+                            CONCAT(j.jam_mulai, ' - ', j.jam_selesai) as Waktu,
+                            mk.nama_matakuliah as MataKuliah,
+                            COALESCE(d.nama, 'Belum Ditentukan') as Dosen,
+                            COALESCE(fa.status, 'Belum Absen') as Status,
+                            j.jam_mulai,
+                            j.jam_selesai
+                        FROM Jadwal j
+                        JOIN MataKuliah mk ON j.matakuliah_id = mk.matakuliah_id
+                        LEFT JOIN Dosen d ON mk.nip = d.nip
+                        LEFT JOIN Form_Absensi fa ON fa.matakuliah_id = mk.matakuliah_id 
+                            AND fa.nim = @nim AND fa.tanggal = CURRENT_DATE
+                        WHERE j.hari = @hari AND mk.prodi_id = @prodi_id
+                        ORDER BY j.jam_mulai";
 
                     using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                     {
@@ -381,14 +381,21 @@ namespace project_maentry
                         {
                             while (reader.Read())
                             {
-                                // Parse jam mulai dan jam selesai
                                 TimeSpan jamMulai = TimeSpan.Parse(reader["jam_mulai"].ToString());
                                 TimeSpan jamSelesai = TimeSpan.Parse(reader["jam_selesai"].ToString());
                                 TimeSpan currentTimeSpan = currentTime.TimeOfDay;
 
-                                // Cek apakah jadwal sedang berlangsung atau sudah lewat
                                 string statusAbsen = reader["Status"].ToString();
                                 bool canAttend = currentTimeSpan >= jamMulai && currentTimeSpan <= jamSelesai;
+                                bool isClassOver = currentTimeSpan > jamSelesai;
+
+                                // Logika untuk mengubah status otomatis
+                                if (statusAbsen == "Belum Absen" && isClassOver)
+                                {
+                                    statusAbsen = "alpa";
+                                    // Update status di database juga
+                                    UpdateAttendanceStatusToAlpa(Convert.ToInt32(reader["jadwal_id"]));
+                                }
 
                                 todayGrid.Rows.Add(
                                     reader["jadwal_id"].ToString(),
@@ -418,6 +425,91 @@ namespace project_maentry
             }
         }
 
+        // Method baru untuk update status menjadi alpa secara otomatis
+        private void UpdateAttendanceStatusToAlpa(int jadwalId)
+        {
+            try
+            {
+                using (NpgsqlConnection conn = maentry.Database.GetConnection())
+                {
+                    conn.Open();
+
+                    // Ambil data mahasiswa, matakuliah, dan dosen
+                    string getMahasiswaQuery = @"
+                        SELECT 
+                            m.nama as nama_mahasiswa,
+                            mk.matakuliah_id,
+                            mk.nip,
+                            COALESCE(d.nama, 'Belum Ditentukan') as nama_dosen
+                        FROM Jadwal j
+                        JOIN MataKuliah mk ON j.matakuliah_id = mk.matakuliah_id
+                        JOIN Mahasiswa m ON m.nim = @nim
+                        LEFT JOIN Dosen d ON mk.nip = d.nip
+                        WHERE j.jadwal_id = @jadwal_id";
+
+                    string namaMahasiswa = "";
+                    int matakuliahId = 0;
+                    string nipDosen = "";
+                    string namaDosen = "";
+
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(getMahasiswaQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@jadwal_id", jadwalId);
+                        cmd.Parameters.AddWithValue("@nim", currentNim);
+
+                        using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                namaMahasiswa = reader["nama_mahasiswa"].ToString();
+                                matakuliahId = Convert.ToInt32(reader["matakuliah_id"]);
+                                nipDosen = reader["nip"]?.ToString() ?? "";
+                                namaDosen = reader["nama_dosen"].ToString();
+                            }
+                        }
+                    }
+
+                    if (matakuliahId == 0) return;
+
+                    // Insert/Update status alpa
+                    string insertQuery = @"
+                        INSERT INTO Form_Absensi (nim, nama_mahasiswa, nip, nama_dosen, tanggal, waktu, status, matakuliah_id)
+                        VALUES (@nim, @nama_mahasiswa, @nip, @nama_dosen, @tanggal, @waktu, @status, @matakuliah_id)
+                        ON CONFLICT (nim, matakuliah_id, tanggal) 
+                        DO UPDATE SET status = @status WHERE Form_Absensi.status = 'Belum Absen'";
+
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(insertQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@nim", currentNim);
+                        cmd.Parameters.AddWithValue("@nama_mahasiswa", namaMahasiswa);
+
+                        if (!string.IsNullOrEmpty(nipDosen))
+                        {
+                            cmd.Parameters.AddWithValue("@nip", nipDosen);
+                            cmd.Parameters.AddWithValue("@nama_dosen", namaDosen);
+                        }
+                        else
+                        {
+                            cmd.Parameters.AddWithValue("@nip", DBNull.Value);
+                            cmd.Parameters.AddWithValue("@nama_dosen", "Belum Ditentukan");
+                        }
+
+                        cmd.Parameters.AddWithValue("@tanggal", DateTime.Now.Date);
+                        cmd.Parameters.AddWithValue("@waktu", DateTime.Now.TimeOfDay);
+                        cmd.Parameters.AddWithValue("@status", "alpa");
+                        cmd.Parameters.AddWithValue("@matakuliah_id", matakuliahId);
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error tapi jangan tampilkan ke user karena ini proses otomatis
+                Console.WriteLine($"Error updating attendance to alpa: {ex.Message}");
+            }
+        }
+
         private void LoadAttendanceHistory()
         {
             try
@@ -428,18 +520,18 @@ namespace project_maentry
 
                     // Query sederhana tanpa kompleksitas join jadwal
                     string query = @"
-                SELECT 
-                    fa.tanggal,
-                    fa.waktu::text as waktu,
-                    mk.nama_matakuliah,
-                    COALESCE(fa.nama_dosen, d.nama, 'Belum Ditentukan') as nama_dosen,
-                    fa.status
-                FROM Form_Absensi fa
-                JOIN MataKuliah mk ON fa.matakuliah_id = mk.matakuliah_id
-                LEFT JOIN Dosen d ON mk.nip = d.nip
-                WHERE fa.nim = @nim
-                ORDER BY fa.tanggal DESC, fa.waktu DESC
-                LIMIT 50";
+                        SELECT 
+                            fa.tanggal,
+                            fa.waktu::text as waktu,
+                            mk.nama_matakuliah,
+                            COALESCE(fa.nama_dosen, d.nama, 'Belum Ditentukan') as nama_dosen,
+                            fa.status
+                        FROM Form_Absensi fa
+                        JOIN MataKuliah mk ON fa.matakuliah_id = mk.matakuliah_id
+                        LEFT JOIN Dosen d ON mk.nip = d.nip
+                        WHERE fa.nim = @nim
+                        ORDER BY fa.tanggal DESC, fa.waktu DESC
+                        LIMIT 50";
 
                     using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                     {
@@ -476,6 +568,7 @@ namespace project_maentry
             }
         }
 
+        // Perbaikan untuk method ShowAttendanceDialog - hanya 2 opsi: Hadir dan Izin
         private void ShowAttendanceDialog(int jadwalId, string mataKuliah, string namaDosen)
         {
             // Cek apakah dalam jam kuliah
@@ -486,15 +579,15 @@ namespace project_maentry
                 return;
             }
 
+            // Dialog dengan hanya 2 opsi: Hadir dan Izin
             DialogResult result = MessageBox.Show(
                 $"Mata Kuliah: {mataKuliah}\n" +
                 $"Dosen: {namaDosen}\n\n" +
                 "Pilih status absensi:\n\n" +
                 "YES = Hadir\n" +
-                "NO = Alpa\n" +
-                "Cancel = Izin",
+                "NO = Izin",
                 "Absensi",
-                MessageBoxButtons.YesNoCancel,
+                MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
             string status = "";
@@ -504,13 +597,10 @@ namespace project_maentry
                     status = "hadir";
                     break;
                 case DialogResult.No:
-                    status = "alpa";
-                    break;
-                case DialogResult.Cancel:
                     status = "izin";
                     break;
                 default:
-                    return;
+                    return; // User cancel/close dialog
             }
 
             SaveAttendance(jadwalId, status, namaDosen);
@@ -561,17 +651,17 @@ namespace project_maentry
 
                     // Ambil data matakuliah dan dosen - perbaiki query
                     string getMataKuliahQuery = @"
-                SELECT 
-                    mk.matakuliah_id, 
-                    mk.nama_matakuliah, 
-                    m.nama,
-                    mk.nip,
-                    COALESCE(d.nama, 'Belum Ditentukan') as nama_dosen
-                FROM Jadwal j
-                JOIN MataKuliah mk ON j.matakuliah_id = mk.matakuliah_id
-                JOIN Mahasiswa m ON m.nim = @nim
-                LEFT JOIN Dosen d ON mk.nip = d.nip
-                WHERE j.jadwal_id = @jadwal_id";
+                        SELECT 
+                            mk.matakuliah_id, 
+                            mk.nama_matakuliah, 
+                            m.nama,
+                            mk.nip,
+                            COALESCE(d.nama, 'Belum Ditentukan') as nama_dosen
+                        FROM Jadwal j
+                        JOIN MataKuliah mk ON j.matakuliah_id = mk.matakuliah_id
+                        JOIN Mahasiswa m ON m.nim = @nim
+                        LEFT JOIN Dosen d ON mk.nip = d.nip
+                        WHERE j.jadwal_id = @jadwal_id";
 
                     int matakuliahId = 0;
                     string namaMataKuliah = "";
@@ -606,10 +696,10 @@ namespace project_maentry
 
                     // Insert absensi dengan informasi dosen
                     string insertQuery = @"
-                INSERT INTO Form_Absensi (nim, nama_mahasiswa, nip, nama_dosen, tanggal, waktu, status, matakuliah_id)
-                VALUES (@nim, @nama_mahasiswa, @nip, @nama_dosen, @tanggal, @waktu, @status, @matakuliah_id)
-                ON CONFLICT (nim, matakuliah_id, tanggal) 
-                DO UPDATE SET status = @status, waktu = @waktu, nama_dosen = @nama_dosen, nip = @nip";
+                        INSERT INTO Form_Absensi (nim, nama_mahasiswa, nip, nama_dosen, tanggal, waktu, status, matakuliah_id)
+                        VALUES (@nim, @nama_mahasiswa, @nip, @nama_dosen, @tanggal, @waktu, @status, @matakuliah_id)
+                        ON CONFLICT (nim, matakuliah_id, tanggal) 
+                        DO UPDATE SET status = @status, waktu = @waktu, nama_dosen = @nama_dosen, nip = @nip";
 
                     using (NpgsqlCommand cmd = new NpgsqlCommand(insertQuery, conn))
                     {
