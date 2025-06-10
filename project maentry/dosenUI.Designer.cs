@@ -1,4 +1,4 @@
-﻿namespace project_maentry
+namespace project_maentry
 {
     partial class dosenUI
     {
