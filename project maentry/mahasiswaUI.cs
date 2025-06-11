@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -73,6 +73,7 @@ namespace project_maentry
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private void InitializeContentPanels()
         {
@@ -424,6 +425,8 @@ namespace project_maentry
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+
 
         // Method baru untuk update status menjadi alpa secara otomatis
         private void UpdateAttendanceStatusToAlpa(int jadwalId)
