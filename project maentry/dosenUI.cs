@@ -17,6 +17,11 @@ namespace project_maentry
         bool sidebarExpand;
         private Timer refreshTimer; // Timer untuk refresh data real time
         private Panel mainPanel; // Panel utama untuk konten
+        private Panel searchPanel; // Panel untuk search functionality
+        private Panel createPanel; // Panel untuk create functionality
+        private Panel deletePanel; // Panel untuk delete functionality
+
+        // Home panel components
         private DataGridView attendanceGrid; // Grid untuk data kehadiran
         private Label todayLabel; // Label untuk tanggal hari ini
         private Label totalStudentsLabel; // Label total mahasiswa hadir
@@ -24,24 +29,61 @@ namespace project_maentry
         private Label lastUpdateLabel; // Label terakhir update
         private Label summaryLabel; // Label summary statistik
 
+        // Search panel components
+        private TextBox searchTextBox;
+        private ComboBox searchFilterComboBox;
+        private DataGridView searchResultGrid;
+        private Label searchResultLabel;
+
+        // Create panel components
+        private ComboBox studentComboBox;
+        private ComboBox subjectComboBox;
+        private ComboBox statusComboBox;
+        private DateTimePicker datePicker;
+        private DateTimePicker timePicker;
+        private Button saveButton;
+        private DataGridView createPreviewGrid;
+
+        // Delete panel components
+        private DataGridView deleteGrid;
+        private Button deleteButton;
+        private Label deleteStatusLabel;
+
         public dosenUI()
         {
             InitializeComponent();
-            InitializeMainPanel();
+            InitializeAllPanels();
             InitializeRefreshTimer();
+            ConnectSidebarEvents();
             this.FormClosed += dosenUI_FormClosed;
+        }
+
+        private void ConnectSidebarEvents()
+        {
+            // Sesuaikan dengan nama button yang ada di form designer
+            search.Click += search_Click;
+            create.Click += create_Click;
+            delete.Click += delete_Click;
+        }
+
+        private void InitializeAllPanels()
+        {
+            InitializeMainPanel();
+            InitializeSearchPanel();
+            InitializeCreatePanel();
+            InitializeDeletePanel();
         }
 
         private void InitializeMainPanel()
         {
-            // Buat main panel untuk konten
+            // Buat main panel untuk konten HOME
             mainPanel = new Panel();
             mainPanel.Location = new Point(sidebar.Width + 10, panel1.Height + 10);
             mainPanel.Size = new Size(this.Width - sidebar.Width - 30, this.Height - panel1.Height - 50);
             mainPanel.BackColor = Color.White;
             mainPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
             mainPanel.BorderStyle = BorderStyle.FixedSingle;
-            mainPanel.Visible = false; // Awalnya hidden
+            mainPanel.Visible = false;
             this.Controls.Add(mainPanel);
 
             // Header panel dengan gradient background
@@ -51,7 +93,6 @@ namespace project_maentry
             headerPanel.BackColor = Color.FromArgb(240, 248, 255);
             headerPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             headerPanel.Paint += (s, e) => {
-                // Gradient background untuk header
                 using (var brush = new System.Drawing.Drawing2D.LinearGradientBrush(
                     headerPanel.ClientRectangle,
                     Color.FromArgb(240, 248, 255),
@@ -173,384 +214,1060 @@ namespace project_maentry
             attendanceGrid.Location = new Point(20, 200);
             attendanceGrid.Size = new Size(mainPanel.Width - 40, mainPanel.Height - 230);
             attendanceGrid.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
-            attendanceGrid.BackgroundColor = Color.White;
-            attendanceGrid.BorderStyle = BorderStyle.Fixed3D;
-            attendanceGrid.AllowUserToAddRows = false;
-            attendanceGrid.AllowUserToDeleteRows = false;
-            attendanceGrid.ReadOnly = true;
-            attendanceGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            attendanceGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            attendanceGrid.MultiSelect = false;
-            attendanceGrid.AllowUserToResizeRows = false;
-
-            // Styling untuk header
-            attendanceGrid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(70, 130, 180);
-            attendanceGrid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            attendanceGrid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 11, FontStyle.Bold);
-            attendanceGrid.ColumnHeadersHeight = 45;
-            attendanceGrid.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            attendanceGrid.EnableHeadersVisualStyles = false;
-
-            // Styling untuk rows
-            attendanceGrid.DefaultCellStyle.Font = new Font("Segoe UI", 10);
-            attendanceGrid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(70, 130, 180);
-            attendanceGrid.DefaultCellStyle.SelectionForeColor = Color.White;
-            attendanceGrid.RowsDefaultCellStyle.BackColor = Color.White;
-            attendanceGrid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 248, 248);
-            attendanceGrid.RowTemplate.Height = 35;
-
-            // Enable grid lines
-            attendanceGrid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-            attendanceGrid.GridColor = Color.LightGray;
-
-            // Hover effect
-            attendanceGrid.CellMouseEnter += AttendanceGrid_CellMouseEnter;
-            attendanceGrid.CellMouseLeave += AttendanceGrid_CellMouseLeave;
-
+            SetupDataGridView(attendanceGrid);
             mainPanel.Controls.Add(attendanceGrid);
         }
 
-        private void AttendanceGrid_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
+        private void InitializeSearchPanel()
         {
-            if (e.RowIndex >= 0)
-            {
-                attendanceGrid.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(230, 240, 250);
-            }
+            // Panel untuk SEARCH functionality
+            searchPanel = new Panel();
+            searchPanel.Location = new Point(sidebar.Width + 10, panel1.Height + 10);
+            searchPanel.Size = new Size(this.Width - sidebar.Width - 30, this.Height - panel1.Height - 50);
+            searchPanel.BackColor = Color.White;
+            searchPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+            searchPanel.BorderStyle = BorderStyle.FixedSingle;
+            searchPanel.Visible = false;
+            this.Controls.Add(searchPanel);
+
+            // Header untuk Search
+            Label searchHeaderLabel = new Label();
+            searchHeaderLabel.Location = new Point(20, 20);
+            searchHeaderLabel.Size = new Size(400, 40);
+            searchHeaderLabel.Font = new Font("Segoe UI", 20, FontStyle.Bold);
+            searchHeaderLabel.Text = "🔍 Pencarian Data Mahasiswa";
+            searchHeaderLabel.ForeColor = Color.FromArgb(25, 25, 112);
+            searchPanel.Controls.Add(searchHeaderLabel);
+
+            // Panel untuk search controls
+            Panel searchControlPanel = new Panel();
+            searchControlPanel.Location = new Point(20, 70);
+            searchControlPanel.Size = new Size(searchPanel.Width - 40, 100);
+            searchControlPanel.BackColor = Color.FromArgb(248, 248, 248);
+            searchControlPanel.BorderStyle = BorderStyle.FixedSingle;
+            searchControlPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            searchPanel.Controls.Add(searchControlPanel);
+
+            // Label untuk search
+            Label searchLabel = new Label();
+            searchLabel.Location = new Point(15, 15);
+            searchLabel.Size = new Size(120, 25);
+            searchLabel.Font = new Font("Segoe UI", 11, FontStyle.Regular);
+            searchLabel.Text = "🔎 Cari berdasarkan:";
+            searchControlPanel.Controls.Add(searchLabel);
+
+            // ComboBox untuk filter pencarian
+            searchFilterComboBox = new ComboBox();
+            searchFilterComboBox.Location = new Point(140, 15);
+            searchFilterComboBox.Size = new Size(150, 25);
+            searchFilterComboBox.Font = new Font("Segoe UI", 10);
+            searchFilterComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            searchFilterComboBox.Items.AddRange(new string[] { "Semua", "Nama", "NIM", "Program Studi", "Mata Kuliah", "Status" });
+            searchFilterComboBox.SelectedIndex = 0;
+            searchControlPanel.Controls.Add(searchFilterComboBox);
+
+            // TextBox untuk input pencarian
+            searchTextBox = new TextBox();
+            searchTextBox.Location = new Point(310, 15);
+            searchTextBox.Size = new Size(200, 25);
+            searchTextBox.Font = new Font("Segoe UI", 10);
+            searchTextBox.PlaceholderText = "Masukkan kata kunci...";
+            searchTextBox.TextChanged += SearchTextBox_TextChanged;
+            searchControlPanel.Controls.Add(searchTextBox);
+
+            // Button untuk search
+            Button searchButton = new Button();
+            searchButton.Location = new Point(530, 15);
+            searchButton.Size = new Size(80, 25);
+            searchButton.Text = "Cari";
+            searchButton.Font = new Font("Segoe UI", 9, FontStyle.Regular);
+            searchButton.BackColor = Color.FromArgb(70, 130, 180);
+            searchButton.ForeColor = Color.White;
+            searchButton.FlatStyle = FlatStyle.Flat;
+            searchButton.FlatAppearance.BorderSize = 0;
+            searchButton.Cursor = Cursors.Hand;
+            searchButton.Click += SearchButton_Click;
+            searchControlPanel.Controls.Add(searchButton);
+
+            // Button untuk reset search
+            Button resetSearchButton = new Button();
+            resetSearchButton.Location = new Point(620, 15);
+            resetSearchButton.Size = new Size(80, 25);
+            resetSearchButton.Text = "Reset";
+            resetSearchButton.Font = new Font("Segoe UI", 9, FontStyle.Regular);
+            resetSearchButton.BackColor = Color.FromArgb(255, 140, 0);
+            resetSearchButton.ForeColor = Color.White;
+            resetSearchButton.FlatStyle = FlatStyle.Flat;
+            resetSearchButton.FlatAppearance.BorderSize = 0;
+            resetSearchButton.Cursor = Cursors.Hand;
+            resetSearchButton.Click += ResetSearchButton_Click;
+            searchControlPanel.Controls.Add(resetSearchButton);
+
+            // Label untuk hasil pencarian
+            searchResultLabel = new Label();
+            searchResultLabel.Location = new Point(15, 50);
+            searchResultLabel.Size = new Size(400, 25);
+            searchResultLabel.Font = new Font("Segoe UI", 11, FontStyle.Regular);
+            searchResultLabel.Text = "📊 Hasil pencarian: 0 data ditemukan";
+            searchResultLabel.ForeColor = Color.FromArgb(70, 70, 70);
+            searchControlPanel.Controls.Add(searchResultLabel);
+
+            // DataGridView untuk hasil pencarian
+            searchResultGrid = new DataGridView();
+            searchResultGrid.Location = new Point(20, 180);
+            searchResultGrid.Size = new Size(searchPanel.Width - 40, searchPanel.Height - 210);
+            searchResultGrid.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+            SetupDataGridView(searchResultGrid);
+            searchPanel.Controls.Add(searchResultGrid);
         }
 
-        private void AttendanceGrid_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
+        private void InitializeCreatePanel()
         {
-            if (e.RowIndex >= 0)
-            {
-                // Reset color berdasarkan status kehadiran
-                if (attendanceGrid.Rows[e.RowIndex].Cells["status"] != null &&
-                    attendanceGrid.Rows[e.RowIndex].Cells["status"].Value != null)
-                {
-                    string status = attendanceGrid.Rows[e.RowIndex].Cells["status"].Value.ToString();
-                    switch (status.ToLower())
-                    {
-                        case "hadir":
-                            attendanceGrid.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(144, 238, 144);
-                            break;
-                        case "izin":
-                            attendanceGrid.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(255, 255, 224);
-                            break;
-                        case "alpa":
-                            attendanceGrid.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(255, 182, 193);
-                            break;
-                        default:
-                            if (e.RowIndex % 2 == 0)
-                                attendanceGrid.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
-                            else
-                                attendanceGrid.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(248, 248, 248);
-                            break;
-                    }
-                }
-            }
+            // Panel untuk CREATE functionality
+            createPanel = new Panel();
+            createPanel.Location = new Point(sidebar.Width + 10, panel1.Height + 10);
+            createPanel.Size = new Size(this.Width - sidebar.Width - 30, this.Height - panel1.Height - 50);
+            createPanel.BackColor = Color.White;
+            createPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+            createPanel.BorderStyle = BorderStyle.FixedSingle;
+            createPanel.Visible = false;
+            this.Controls.Add(createPanel);
+
+            // Header untuk Create
+            Label createHeaderLabel = new Label();
+            createHeaderLabel.Location = new Point(20, 20);
+            createHeaderLabel.Size = new Size(500, 40);
+            createHeaderLabel.Font = new Font("Segoe UI", 20, FontStyle.Bold);
+            createHeaderLabel.Text = "➕ Tambah/Edit Data Absensi";
+            createHeaderLabel.ForeColor = Color.FromArgb(25, 25, 112);
+            createPanel.Controls.Add(createHeaderLabel);
+
+            // Panel untuk form input
+            Panel inputPanel = new Panel();
+            inputPanel.Location = new Point(20, 70);
+            inputPanel.Size = new Size(createPanel.Width - 40, 200);
+            inputPanel.BackColor = Color.FromArgb(248, 248, 248);
+            inputPanel.BorderStyle = BorderStyle.FixedSingle;
+            inputPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            createPanel.Controls.Add(inputPanel);
+
+            // Form controls
+            int yPos = 20;
+            int spacing = 35;
+
+            // Mahasiswa selection
+            Label studentLabel = new Label();
+            studentLabel.Location = new Point(20, yPos);
+            studentLabel.Size = new Size(120, 25);
+            studentLabel.Font = new Font("Segoe UI", 11, FontStyle.Regular);
+            studentLabel.Text = "👨‍🎓 Mahasiswa:";
+            inputPanel.Controls.Add(studentLabel);
+
+            studentComboBox = new ComboBox();
+            studentComboBox.Location = new Point(150, yPos);
+            studentComboBox.Size = new Size(300, 25);
+            studentComboBox.Font = new Font("Segoe UI", 10);
+            studentComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            inputPanel.Controls.Add(studentComboBox);
+
+            yPos += spacing;
+
+            // Mata kuliah selection
+            Label subjectLabel = new Label();
+            subjectLabel.Location = new Point(20, yPos);
+            subjectLabel.Size = new Size(120, 25);
+            subjectLabel.Font = new Font("Segoe UI", 11, FontStyle.Regular);
+            subjectLabel.Text = "📚 Mata Kuliah:";
+            inputPanel.Controls.Add(subjectLabel);
+
+            subjectComboBox = new ComboBox();
+            subjectComboBox.Location = new Point(150, yPos);
+            subjectComboBox.Size = new Size(300, 25);
+            subjectComboBox.Font = new Font("Segoe UI", 10);
+            subjectComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            inputPanel.Controls.Add(subjectComboBox);
+
+            yPos += spacing;
+
+            // Status selection
+            Label statusLabel = new Label();
+            statusLabel.Location = new Point(20, yPos);
+            statusLabel.Size = new Size(120, 25);
+            statusLabel.Font = new Font("Segoe UI", 11, FontStyle.Regular);
+            statusLabel.Text = "✅ Status:";
+            inputPanel.Controls.Add(statusLabel);
+
+            statusComboBox = new ComboBox();
+            statusComboBox.Location = new Point(150, yPos);
+            statusComboBox.Size = new Size(150, 25);
+            statusComboBox.Font = new Font("Segoe UI", 10);
+            statusComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            statusComboBox.Items.AddRange(new string[] { "hadir", "izin", "sakit", "alpa" });
+            statusComboBox.SelectedIndex = 0;
+            inputPanel.Controls.Add(statusComboBox);
+
+            yPos += spacing;
+
+            // Date selection
+            Label dateLabel = new Label();
+            dateLabel.Location = new Point(20, yPos);
+            dateLabel.Size = new Size(120, 25);
+            dateLabel.Font = new Font("Segoe UI", 11, FontStyle.Regular);
+            dateLabel.Text = "📅 Tanggal:";
+            inputPanel.Controls.Add(dateLabel);
+
+            datePicker = new DateTimePicker();
+            datePicker.Location = new Point(150, yPos);
+            datePicker.Size = new Size(150, 25);
+            datePicker.Font = new Font("Segoe UI", 10);
+            datePicker.Format = DateTimePickerFormat.Short;
+            datePicker.Value = DateTime.Now;
+            inputPanel.Controls.Add(datePicker);
+
+            // Time selection
+            Label timeLabel = new Label();
+            timeLabel.Location = new Point(320, yPos);
+            timeLabel.Size = new Size(60, 25);
+            timeLabel.Font = new Font("Segoe UI", 11, FontStyle.Regular);
+            timeLabel.Text = "⏰ Waktu:";
+            inputPanel.Controls.Add(timeLabel);
+
+            timePicker = new DateTimePicker();
+            timePicker.Location = new Point(390, yPos);
+            timePicker.Size = new Size(100, 25);
+            timePicker.Font = new Font("Segoe UI", 10);
+            timePicker.Format = DateTimePickerFormat.Time;
+            timePicker.ShowUpDown = true;
+            timePicker.Value = DateTime.Now;
+            inputPanel.Controls.Add(timePicker);
+
+            yPos += spacing + 10;
+
+            // Buttons
+            saveButton = new Button();
+            saveButton.Location = new Point(150, yPos);
+            saveButton.Size = new Size(100, 35);
+            saveButton.Text = "💾 Simpan";
+            saveButton.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            saveButton.BackColor = Color.FromArgb(34, 139, 34);
+            saveButton.ForeColor = Color.White;
+            saveButton.FlatStyle = FlatStyle.Flat;
+            saveButton.FlatAppearance.BorderSize = 0;
+            saveButton.Cursor = Cursors.Hand;
+            saveButton.Click += SaveButton_Click;
+            inputPanel.Controls.Add(saveButton);
+
+            Button clearButton = new Button();
+            clearButton.Location = new Point(260, yPos);
+            clearButton.Size = new Size(100, 35);
+            clearButton.Text = "🗑 Bersihkan";
+            clearButton.Font = new Font("Segoe UI", 10, FontStyle.Regular);
+            clearButton.BackColor = Color.FromArgb(220, 20, 60);
+            clearButton.ForeColor = Color.White;
+            clearButton.FlatStyle = FlatStyle.Flat;
+            clearButton.FlatAppearance.BorderSize = 0;
+            clearButton.Cursor = Cursors.Hand;
+            clearButton.Click += ClearButton_Click;
+            inputPanel.Controls.Add(clearButton);
+
+            // Preview grid
+            Label previewLabel = new Label();
+            previewLabel.Location = new Point(20, 290);
+            previewLabel.Size = new Size(300, 30);
+            previewLabel.Font = new Font("Segoe UI", 14, FontStyle.Bold);
+            previewLabel.Text = "📋 Preview Data Absensi";
+            previewLabel.ForeColor = Color.FromArgb(25, 25, 112);
+            createPanel.Controls.Add(previewLabel);
+
+            createPreviewGrid = new DataGridView();
+            createPreviewGrid.Location = new Point(20, 320);
+            createPreviewGrid.Size = new Size(createPanel.Width - 40, createPanel.Height - 350);
+            createPreviewGrid.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+            SetupDataGridView(createPreviewGrid);
+            createPanel.Controls.Add(createPreviewGrid);
+
+            // Load initial data
+            LoadStudentsForComboBox();
+            LoadSubjectsForComboBox();
+            LoadCreatePreviewData();
         }
 
-        private void ExportButton_Click(object sender, EventArgs e)
+        private void InitializeDeletePanel()
         {
-            try
+            // Panel untuk DELETE functionality
+            deletePanel = new Panel();
+            deletePanel.Location = new Point(sidebar.Width + 10, panel1.Height + 10);
+            deletePanel.Size = new Size(this.Width - sidebar.Width - 30, this.Height - panel1.Height - 50);
+            deletePanel.BackColor = Color.White;
+            deletePanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+            deletePanel.BorderStyle = BorderStyle.FixedSingle;
+            deletePanel.Visible = false;
+            this.Controls.Add(deletePanel);
+
+            // Header untuk Delete
+            Label deleteHeaderLabel = new Label();
+            deleteHeaderLabel.Location = new Point(20, 20);
+            deleteHeaderLabel.Size = new Size(400, 40);
+            deleteHeaderLabel.Font = new Font("Segoe UI", 20, FontStyle.Bold);
+            deleteHeaderLabel.Text = "🗑 Hapus Data Absensi";
+            deleteHeaderLabel.ForeColor = Color.FromArgb(220, 20, 60);
+            deletePanel.Controls.Add(deleteHeaderLabel);
+
+            // Warning label
+            Label warningLabel = new Label();
+            warningLabel.Location = new Point(20, 70);
+            warningLabel.Size = new Size(600, 30);
+            warningLabel.Font = new Font("Segoe UI", 12, FontStyle.Regular);
+            warningLabel.Text = "⚠ Pilih data yang ingin dihapus dari tabel di bawah ini";
+            warningLabel.ForeColor = Color.FromArgb(255, 140, 0);
+            deletePanel.Controls.Add(warningLabel);
+
+            // Control panel
+            Panel deleteControlPanel = new Panel();
+            deleteControlPanel.Location = new Point(20, 110);
+            deleteControlPanel.Size = new Size(deletePanel.Width - 40, 60);
+            deleteControlPanel.BackColor = Color.FromArgb(248, 248, 248);
+            deleteControlPanel.BorderStyle = BorderStyle.FixedSingle;
+            deleteControlPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            deletePanel.Controls.Add(deleteControlPanel);
+
+            // Delete button
+            deleteButton = new Button();
+            deleteButton.Location = new Point(15, 15);
+            deleteButton.Size = new Size(120, 30);
+            deleteButton.Text = "🗑 Hapus Terpilih";
+            deleteButton.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            deleteButton.BackColor = Color.FromArgb(220, 20, 60);
+            deleteButton.ForeColor = Color.White;
+            deleteButton.FlatStyle = FlatStyle.Flat;
+            deleteButton.FlatAppearance.BorderSize = 0;
+            deleteButton.Cursor = Cursors.Hand;
+            deleteButton.Click += DeleteButton_Click;
+            deleteControlPanel.Controls.Add(deleteButton);
+
+            // Refresh delete data button
+            Button refreshDeleteButton = new Button();
+            refreshDeleteButton.Location = new Point(145, 15);
+            refreshDeleteButton.Size = new Size(100, 30);
+            refreshDeleteButton.Text = "🔄 Refresh";
+            refreshDeleteButton.Font = new Font("Segoe UI", 9, FontStyle.Regular);
+            refreshDeleteButton.BackColor = Color.FromArgb(70, 130, 180);
+            refreshDeleteButton.ForeColor = Color.White;
+            refreshDeleteButton.FlatStyle = FlatStyle.Flat;
+            refreshDeleteButton.FlatAppearance.BorderSize = 0;
+            refreshDeleteButton.Cursor = Cursors.Hand;
+            refreshDeleteButton.Click += (s, e) => LoadDeleteData();
+            deleteControlPanel.Controls.Add(refreshDeleteButton);
+
+            // Status label untuk delete
+            deleteStatusLabel = new Label();
+            deleteStatusLabel.Location = new Point(260, 20);
+            deleteStatusLabel.Size = new Size(300, 20);
+            deleteStatusLabel.Font = new Font("Segoe UI", 10, FontStyle.Regular);
+            deleteStatusLabel.Text = "📊 Pilih baris data untuk menghapus";
+            deleteStatusLabel.ForeColor = Color.FromArgb(70, 70, 70);
+            deleteControlPanel.Controls.Add(deleteStatusLabel);
+
+            // DataGridView untuk data yang bisa dihapus
+            deleteGrid = new DataGridView();
+            deleteGrid.Location = new Point(20, 180);
+            deleteGrid.Size = new Size(deletePanel.Width - 40, deletePanel.Height - 210);
+            deleteGrid.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+            SetupDataGridView(deleteGrid);
+            deleteGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            deleteGrid.MultiSelect = true;
+            deleteGrid.SelectionChanged += DeleteGrid_SelectionChanged;
+            deletePanel.Controls.Add(deleteGrid);
+        }
+
+        private void SetupDataGridView(DataGridView grid)
+        {
+            grid.BackgroundColor = Color.White;
+            grid.BorderStyle = BorderStyle.Fixed3D;
+            grid.AllowUserToAddRows = false;
+            grid.AllowUserToDeleteRows = false;
+            grid.ReadOnly = true;
+            grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            grid.MultiSelect = false;
+            grid.AllowUserToResizeRows = false;
+
+            // Styling untuk header
+            grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(70, 130, 180);
+            grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+            grid.ColumnHeadersHeight = 45;
+            grid.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            grid.EnableHeadersVisualStyles = false;
+
+            // Styling untuk rows
+            grid.DefaultCellStyle.Font = new Font("Segoe UI", 10);
+            // Styling untuk rows (lanjutan dari kode sebelumnya)
+            grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(70, 130, 180);
+            grid.DefaultCellStyle.SelectionForeColor = Color.White;
+            grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(240, 248, 255);
+            grid.DefaultCellStyle.BackColor = Color.White;
+            grid.DefaultCellStyle.ForeColor = Color.Black;
+            grid.RowTemplate.Height = 35;
+            grid.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            grid.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+
+            // Event handlers
+            grid.CellFormatting += Grid_CellFormatting;
+        }
+
+        private void Grid_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            DataGridView grid = sender as DataGridView;
+            if (grid.Columns[e.ColumnIndex].Name == "status" && e.Value != null)
             {
-                if (attendanceGrid.Rows.Count == 0)
+                string status = e.Value.ToString().ToLower();
+                switch (status)
                 {
-                    MessageBox.Show("Tidak ada data untuk diekspor!", "Export", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    case "hadir":
+                        e.CellStyle.BackColor = Color.FromArgb(144, 238, 144);
+                        e.CellStyle.ForeColor = Color.FromArgb(0, 100, 0);
+                        break;
+                    case "izin":
+                        e.CellStyle.BackColor = Color.FromArgb(255, 255, 224);
+                        e.CellStyle.ForeColor = Color.FromArgb(255, 140, 0);
+                        break;
+                    case "sakit":
+                        e.CellStyle.BackColor = Color.FromArgb(255, 228, 225);
+                        e.CellStyle.ForeColor = Color.FromArgb(255, 69, 0);
+                        break;
+                    case "alpa":
+                        e.CellStyle.BackColor = Color.FromArgb(255, 182, 193);
+                        e.CellStyle.ForeColor = Color.FromArgb(139, 0, 0);
+                        break;
                 }
-
-                SaveFileDialog saveFileDialog = new SaveFileDialog();
-                saveFileDialog.Filter = "CSV files (.csv)|.csv";
-                saveFileDialog.FileName = $"Kehadiran_{DateTime.Now:yyyy-MM-dd}.csv";
-
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    StringBuilder csv = new StringBuilder();
-
-                    // Header
-                    csv.AppendLine("Nama Mahasiswa,NIM,Program Studi,Mata Kuliah,Tanggal,Waktu,Status");
-
-                    // Data rows
-                    foreach (DataGridViewRow row in attendanceGrid.Rows)
-                    {
-                        if (row.Cells["nama"].Value != null)
-                        {
-                            csv.AppendLine($"{row.Cells["nama"].Value}," +
-                                          $"{row.Cells["nim"].Value}," +
-                                          $"{row.Cells["nama_prodi"].Value}," +
-                                          $"{row.Cells["nama_matakuliah"].Value}," +
-                                          $"{row.Cells["tanggal"].Value}," +
-                                          $"{row.Cells["waktu_display"].Value}," +
-                                          $"{row.Cells["status"].Value}");
-                        }
-                    }
-
-                    System.IO.File.WriteAllText(saveFileDialog.FileName, csv.ToString());
-                    MessageBox.Show("Data berhasil diekspor!", "Export", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error saat export: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void InitializeRefreshTimer()
         {
-            // Timer untuk refresh data setiap 30 detik
             refreshTimer = new Timer();
             refreshTimer.Interval = 30000; // 30 detik
             refreshTimer.Tick += RefreshTimer_Tick;
+            refreshTimer.Start();
         }
 
         private void RefreshTimer_Tick(object sender, EventArgs e)
         {
-            // Refresh data kehadiran
-            LoadTodayAttendance();
-            lastUpdateLabel.Text = "Terakhir diperbarui: " + DateTime.Now.ToString("HH:mm:ss");
-        }
-
-        private void dosenUI_Load(object sender, EventArgs e)
-        {
-            // Setup form
-            this.WindowState = FormWindowState.Maximized;
-
-            // Update today label saat form load
-            if (todayLabel != null)
+            if (mainPanel.Visible) // Hanya refresh jika panel home sedang aktif
             {
-                todayLabel.Text = "📊 Kehadiran Mahasiswa - " + DateTime.Now.ToString("dddd, dd MMMM yyyy", new System.Globalization.CultureInfo("id-ID"));
+                LoadTodayAttendance();
             }
-        }
-
-        private void home_Click(object sender, EventArgs e)
-        {
-            // Tampilkan main panel dan mulai timer refresh
-            mainPanel.Visible = true;
-            mainPanel.BringToFront();
-
-            // Load data kehadiran hari ini
-            LoadTodayAttendance();
-
-            // Mulai timer untuk refresh real time
-            refreshTimer.Start();
-
-            // Update status
-            statusLabel.Text = "🟢 Status: Aktif";
-            statusLabel.ForeColor = Color.Green;
-            lastUpdateLabel.Text = "Terakhir diperbarui: " + DateTime.Now.ToString("HH:mm:ss");
         }
 
         private void LoadTodayAttendance()
         {
             try
             {
-                // Update label tanggal
-                todayLabel.Text = "📊 Kehadiran Mahasiswa - " + DateTime.Now.ToString("dddd, dd MMMM yyyy", new System.Globalization.CultureInfo("id-ID"));
-
-                // Gunakan Database.cs yang sudah ada
-                using (var connection = Database.GetConnection())
+                using (var conn = Database.GetConnection())
                 {
-                    connection.Open();
-
-                    // Query yang disesuaikan dengan handling waktu yang benar
+                    conn.Open();
                     string query = @"
                         SELECT 
-                            fa.id_absensi,
-                            fa.nim,
-                            fa.nama_mahasiswa as nama,
-                            TO_CHAR(fa.tanggal, 'YYYY-MM-DD') as tanggal,
-                            CASE 
-                                WHEN fa.waktu IS NOT NULL THEN 
-                                    TO_CHAR(fa.waktu, 'HH24:MI:SS')
-                                ELSE 
-                                    NULL
-                            END as waktu_display,
-                            fa.waktu,
-                            fa.status,
-                            COALESCE(mk.nama_matakuliah, 'Tidak Diketahui') as nama_matakuliah,
-                            COALESCE(p.nama_prodi, 'Tidak Diketahui') as nama_prodi
+                            fa.id_absensi as ""ID"",
+                            m.nim as ""NIM"",
+                            COALESCE(fa.nama_mahasiswa, m.nama) as ""Nama Mahasiswa"",
+                            mk.nama_matakuliah as ""Mata Kuliah"",
+                            p.nama_prodi as ""Program Studi"",
+                            fa.tanggal as ""Tanggal"",
+                            fa.waktu as ""Waktu"",
+                            fa.status as ""Status""
                         FROM Form_Absensi fa
-                        LEFT JOIN MataKuliah mk ON fa.matakuliah_id = mk.matakuliah_id
-                        LEFT JOIN Prodi p ON mk.prodi_id = p.prodi_id
-                        WHERE fa.tanggal = CURRENT_DATE
-                        ORDER BY fa.waktu ASC NULLS LAST";
+                        JOIN Mahasiswa m ON fa.nim = m.nim
+                        JOIN MataKuliah mk ON fa.matakuliah_id = mk.matakuliah_id
+                        JOIN Prodi p ON mk.prodi_id = p.prodi_id
+                        WHERE fa.tanggal = @tanggal
+                        ORDER BY fa.waktu DESC, m.nama ASC";
 
-                    using (var command = new NpgsqlCommand(query, connection))
+                    using (var cmd = new NpgsqlCommand(query, conn))
                     {
-                        using (var adapter = new NpgsqlDataAdapter(command))
+                        cmd.Parameters.AddWithValue("@tanggal", DateTime.Now.Date);
+
+                        using (var adapter = new NpgsqlDataAdapter(cmd))
                         {
-                            DataTable dataTable = new DataTable();
-                            adapter.Fill(dataTable);
+                            DataTable dt = new DataTable();
+                            adapter.Fill(dt);
 
-                            // Set data ke DataGridView
-                            attendanceGrid.DataSource = dataTable;
+                            attendanceGrid.DataSource = dt;
 
-                            // Update total mahasiswa hadir dengan emoticon
-                            int totalStudents = dataTable.Rows.Count;
-                            totalStudentsLabel.Text = $"👥 Total Mahasiswa Hadir: {totalStudents}";
-                            totalStudentsLabel.ForeColor = totalStudents > 0 ? Color.FromArgb(34, 139, 34) : Color.Orange;
+                            // Update statistik
+                            UpdateStatistics(dt);
 
-                            // Hitung statistik kehadiran berdasarkan status yang ada di database
-                            int hadir = 0, izin = 0, alpa = 0;
-
-                            foreach (DataRow row in dataTable.Rows)
-                            {
-                                if (row["status"] != DBNull.Value)
-                                {
-                                    string status = row["status"].ToString().ToLower();
-                                    switch (status)
-                                    {
-                                        case "hadir":
-                                            hadir++;
-                                            break;
-                                        case "izin":
-                                            izin++;
-                                            break;
-                                        case "alpa":
-                                            alpa++;
-                                            break;
-                                    }
-                                }
-                            }
-
-                            // Update summary label
-                            summaryLabel.Text = $"✅ Hadir: {hadir} | ⚠ Izin: {izin} | ❌ Alpa: {alpa}";
-
-                            // Customize column headers jika ada data
-                            if (attendanceGrid.Columns.Count > 0)
-                            {
-                                // Hide columns yang tidak perlu ditampilkan
-                                if (attendanceGrid.Columns.Contains("id_absensi"))
-                                    attendanceGrid.Columns["id_absensi"].Visible = false;
-                                if (attendanceGrid.Columns.Contains("waktu"))
-                                    attendanceGrid.Columns["waktu"].Visible = false;
-
-                                // Set header text dengan emoji
-                                if (attendanceGrid.Columns.Contains("nim"))
-                                    attendanceGrid.Columns["nim"].HeaderText = "🎓 NIM";
-                                if (attendanceGrid.Columns.Contains("nama"))
-                                    attendanceGrid.Columns["nama"].HeaderText = "📝 Nama Mahasiswa";
-                                if (attendanceGrid.Columns.Contains("tanggal"))
-                                    attendanceGrid.Columns["tanggal"].HeaderText = "📅 Tanggal";
-                                if (attendanceGrid.Columns.Contains("waktu_display"))
-                                    attendanceGrid.Columns["waktu_display"].HeaderText = "⏰ Waktu";
-                                if (attendanceGrid.Columns.Contains("status"))
-                                    attendanceGrid.Columns["status"].HeaderText = "✅ Status";
-                                if (attendanceGrid.Columns.Contains("nama_matakuliah"))
-                                    attendanceGrid.Columns["nama_matakuliah"].HeaderText = "📚 Mata Kuliah";
-                                if (attendanceGrid.Columns.Contains("nama_prodi"))
-                                    attendanceGrid.Columns["nama_prodi"].HeaderText = "🏫 Program Studi";
-
-                                // Set column widths proportionally
-                                if (attendanceGrid.Columns.Contains("nama"))
-                                    attendanceGrid.Columns["nama"].FillWeight = 25;
-                                if (attendanceGrid.Columns.Contains("nim"))
-                                    attendanceGrid.Columns["nim"].FillWeight = 15;
-                                if (attendanceGrid.Columns.Contains("nama_prodi"))
-                                    attendanceGrid.Columns["nama_prodi"].FillWeight = 15;
-                                if (attendanceGrid.Columns.Contains("nama_matakuliah"))
-                                    attendanceGrid.Columns["nama_matakuliah"].FillWeight = 20;
-                                if (attendanceGrid.Columns.Contains("tanggal"))
-                                    attendanceGrid.Columns["tanggal"].FillWeight = 12;
-                                if (attendanceGrid.Columns.Contains("waktu_display"))
-                                    attendanceGrid.Columns["waktu_display"].FillWeight = 10;
-                                if (attendanceGrid.Columns.Contains("status"))
-                                    attendanceGrid.Columns["status"].FillWeight = 13;
-
-                                // Center align untuk kolom tertentu
-                                if (attendanceGrid.Columns.Contains("nim"))
-                                    attendanceGrid.Columns["nim"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                                if (attendanceGrid.Columns.Contains("tanggal"))
-                                    attendanceGrid.Columns["tanggal"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                                if (attendanceGrid.Columns.Contains("waktu_display"))
-                                    attendanceGrid.Columns["waktu_display"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                                if (attendanceGrid.Columns.Contains("status"))
-                                    attendanceGrid.Columns["status"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                            }
-
-                            // Color coding berdasarkan status kehadiran
-                            foreach (DataGridViewRow row in attendanceGrid.Rows)
-                            {
-                                if (row.Cells["status"] != null && row.Cells["status"].Value != null && row.Cells["status"].Value != DBNull.Value)
-                                {
-                                    string status = row.Cells["status"].Value.ToString().ToLower();
-                                    switch (status)
-                                    {
-                                        case "hadir":
-                                            row.DefaultCellStyle.BackColor = Color.FromArgb(144, 238, 144);
-                                            break;
-                                        case "izin":
-                                            row.DefaultCellStyle.BackColor = Color.FromArgb(255, 255, 224);
-                                            break;
-                                        case "alpa":
-                                            row.DefaultCellStyle.BackColor = Color.FromArgb(255, 182, 193);
-                                            break;
-                                    }
-                                }
-                            }
-
-                            // Update status label dengan detail
-                            statusLabel.Text = $"🟢 Aktif | ✅{hadir} ⚠{izin} ❌{alpa}";
+                            statusLabel.Text = "✅ Status: Data terbaru";
                             statusLabel.ForeColor = Color.Green;
-
-                            // Show message jika tidak ada data
-                            if (totalStudents == 0)
-                            {
-                                // Buat row untuk pesan "tidak ada data"
-                                DataRow emptyRow = dataTable.NewRow();
-                                emptyRow["nama"] = "Belum ada mahasiswa yang hadir hari ini";
-                                emptyRow["nim"] = "-";
-                                emptyRow["nama_prodi"] = "-";
-                                emptyRow["nama_matakuliah"] = "-";
-                                emptyRow["tanggal"] = DateTime.Now.ToString("yyyy-MM-dd");
-                                emptyRow["waktu_display"] = "-";
-                                emptyRow["status"] = "Info";
-                                dataTable.Rows.Add(emptyRow);
-
-                                attendanceGrid.DataSource = dataTable;
-                                attendanceGrid.Rows[0].DefaultCellStyle.BackColor = Color.FromArgb(245, 245, 245);
-                                attendanceGrid.Rows[0].DefaultCellStyle.ForeColor = Color.Gray;
-                                attendanceGrid.Rows[0].DefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Italic);
-                            }
+                            lastUpdateLabel.Text = "Terakhir diperbarui: " + DateTime.Now.ToString("HH:mm:ss");
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading attendance data: {ex.Message}\n\nDetail: {ex.ToString()}", "Database Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                // Set pesan error di label jika koneksi gagal
-                totalStudentsLabel.Text = "❌ Error: Tidak dapat terhubung ke database";
-                totalStudentsLabel.ForeColor = Color.Red;
-                statusLabel.Text = "🔴 Status: Error koneksi";
+                statusLabel.Text = "❌ Status: Error - " + ex.Message;
                 statusLabel.ForeColor = Color.Red;
-                lastUpdateLabel.Text = "Error pada: " + DateTime.Now.ToString("HH:mm:ss");
-                summaryLabel.Text = "❌ Error: Tidak dapat memuat statistik";
-
-                // Clear grid
-                attendanceGrid.DataSource = null;
+                MessageBox.Show("Error saat memuat data: " + ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        // Event handlers untuk menu buttons
-        private void button8_Click(object sender, EventArgs e)
+        private void UpdateStatistics(DataTable dt)
         {
-            // Stop timer jika berpindah ke menu lain
-            refreshTimer.Stop();
-            mainPanel.Visible = false;
-            if (statusLabel != null)
+            int totalHadir = 0, totalIzin = 0, totalSakit = 0, totalAlpa = 0;
+
+            foreach (DataRow row in dt.Rows)
             {
-                statusLabel.Text = "⏸ Status: Tidak aktif";
-                statusLabel.ForeColor = Color.Orange;
+                string status = row["Status"].ToString().ToLower();
+                switch (status)
+                {
+                    case "hadir": totalHadir++; break;
+                    case "izin": totalIzin++; break;
+                    case "sakit": totalSakit++; break;
+                    case "alpa": totalAlpa++; break;
+                }
+            }
+
+            totalStudentsLabel.Text = $"👥 Total Mahasiswa Hadir: {totalHadir}";
+            summaryLabel.Text = $"✅ Hadir: {totalHadir} | 📋 Izin: {totalIzin} | 🏥 Sakit: {totalSakit} | ❌ Alpa: {totalAlpa}";
+        }
+
+        private void LoadStudentsForComboBox()
+        {
+            try
+            {
+                using (var conn = Database.GetConnection())
+                {
+                    conn.Open();
+                    string query = @"
+                        SELECT m.nim, m.nama, p.nama_prodi 
+                        FROM Mahasiswa m 
+                        JOIN Prodi p ON m.prodi_id = p.prodi_id 
+                        ORDER BY m.nama";
+
+                    using (var cmd = new NpgsqlCommand(query, conn))
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        studentComboBox.Items.Clear();
+                        while (reader.Read())
+                        {
+                            string displayText = $"{reader["nama"]} ({reader["nim"]}) - {reader["nama_prodi"]}";
+                            studentComboBox.Items.Add(new ComboBoxItem
+                            {
+                                Text = displayText,
+                                Value = reader["nim"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading students: " + ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void menucontainer_Paint(object sender, PaintEventArgs e)
+        private void LoadSubjectsForComboBox()
         {
-            // Paint event untuk menu container
+            try
+            {
+                using (var conn = Database.GetConnection())
+                {
+                    conn.Open();
+                    string query = @"
+                        SELECT mk.matakuliah_id, mk.nama_matakuliah, p.nama_prodi 
+                        FROM MataKuliah mk 
+                        JOIN Prodi p ON mk.prodi_id = p.prodi_id 
+                        ORDER BY mk.nama_matakuliah";
+
+                    using (var cmd = new NpgsqlCommand(query, conn))
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        subjectComboBox.Items.Clear();
+                        while (reader.Read())
+                        {
+                            string displayText = $"{reader["nama_matakuliah"]} - {reader["nama_prodi"]}";
+                            subjectComboBox.Items.Add(new ComboBoxItem
+                            {
+                                Text = displayText,
+                                Value = reader["matakuliah_id"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading subjects: " + ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
+        private void LoadCreatePreviewData()
+        {
+            try
+            {
+                using (var conn = Database.GetConnection())
+                {
+                    conn.Open();
+                    string query = @"
+                        SELECT 
+                            fa.id_absensi as ""ID"",
+                            m.nim as ""NIM"",
+                            COALESCE(fa.nama_mahasiswa, m.nama) as ""Nama Mahasiswa"",
+                            mk.nama_matakuliah as ""Mata Kuliah"",
+                            fa.tanggal as ""Tanggal"",
+                            fa.waktu as ""Waktu"",
+                            fa.status as ""Status""
+                        FROM Form_Absensi fa
+                        JOIN Mahasiswa m ON fa.nim = m.nim
+                        JOIN MataKuliah mk ON fa.matakuliah_id = mk.matakuliah_id
+                        ORDER BY fa.tanggal DESC, fa.waktu DESC
+                        LIMIT 50";
+
+                    using (var adapter = new NpgsqlDataAdapter(query, conn))
+                    {
+                        DataTable dt = new DataTable();
+                        adapter.Fill(dt);
+                        createPreviewGrid.DataSource = dt;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading preview data: " + ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void LoadDeleteData()
+        {
+            try
+            {
+                using (var conn = Database.GetConnection())
+                {
+                    conn.Open();
+                    string query = @"
+                        SELECT 
+                            fa.id_absensi as ""ID"",
+                            m.nim as ""NIM"",
+                            COALESCE(fa.nama_mahasiswa, m.nama) as ""Nama Mahasiswa"",
+                            mk.nama_matakuliah as ""Mata Kuliah"",
+                            p.nama_prodi as ""Program Studi"",
+                            fa.tanggal as ""Tanggal"",
+                            fa.waktu as ""Waktu"",
+                            fa.status as ""Status""
+                        FROM Form_Absensi fa
+                        JOIN Mahasiswa m ON fa.nim = m.nim
+                        JOIN MataKuliah mk ON fa.matakuliah_id = mk.matakuliah_id
+                        JOIN Prodi p ON mk.prodi_id = p.prodi_id
+                        ORDER BY fa.tanggal DESC, fa.waktu DESC";
+
+                    using (var adapter = new NpgsqlDataAdapter(query, conn))
+                    {
+                        DataTable dt = new DataTable();
+                        adapter.Fill(dt);
+                        deleteGrid.DataSource = dt;
+
+                        deleteStatusLabel.Text = $"📊 Total {dt.Rows.Count} data tersedia";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading delete data: " + ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Event Handlers
+        private void SearchTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (searchTextBox.Text.Length >= 3 || string.IsNullOrEmpty(searchTextBox.Text))
+            {
+                PerformSearch();
+            }
+        }
+
+        private void SearchButton_Click(object sender, EventArgs e)
+        {
+            PerformSearch();
+        }
+
+        private void ResetSearchButton_Click(object sender, EventArgs e)
+        {
+            searchTextBox.Clear();
+            searchFilterComboBox.SelectedIndex = 0;
+            searchResultGrid.DataSource = null;
+            searchResultLabel.Text = "📊 Hasil pencarian: 0 data ditemukan";
+        }
+
+        private void PerformSearch()
+        {
+            try
+            {
+                using (var conn = Database.GetConnection())
+                {
+                    conn.Open();
+
+                    string baseQuery = @"
+                        SELECT 
+                            fa.id_absensi as ""ID"",
+                            m.nim as ""NIM"",
+                            COALESCE(fa.nama_mahasiswa, m.nama) as ""Nama Mahasiswa"",
+                            mk.nama_matakuliah as ""Mata Kuliah"",
+                            p.nama_prodi as ""Program Studi"",
+                            fa.tanggal as ""Tanggal"",
+                            fa.waktu as ""Waktu"",
+                            fa.status as ""Status""
+                        FROM Form_Absensi fa
+                        JOIN Mahasiswa m ON fa.nim = m.nim
+                        JOIN MataKuliah mk ON fa.matakuliah_id = mk.matakuliah_id
+                        JOIN Prodi p ON mk.prodi_id = p.prodi_id";
+
+                    string whereClause = "";
+                    string searchText = searchTextBox.Text.Trim();
+
+                    if (!string.IsNullOrEmpty(searchText))
+                    {
+                        string filter = searchFilterComboBox.SelectedItem.ToString();
+                        switch (filter)
+                        {
+                            case "Nama":
+                                whereClause = " WHERE LOWER(COALESCE(fa.nama_mahasiswa, m.nama)) LIKE LOWER(@searchText)";
+                                break;
+                            case "NIM":
+                                whereClause = " WHERE m.nim LIKE @searchText";
+                                break;
+                            case "Program Studi":
+                                whereClause = " WHERE LOWER(p.nama_prodi) LIKE LOWER(@searchText)";
+                                break;
+                            case "Mata Kuliah":
+                                whereClause = " WHERE LOWER(mk.nama_matakuliah) LIKE LOWER(@searchText)";
+                                break;
+                            case "Status":
+                                whereClause = " WHERE LOWER(fa.status) LIKE LOWER(@searchText)";
+                                break;
+                            default: // Semua
+                                whereClause = @" WHERE (
+                                    LOWER(COALESCE(fa.nama_mahasiswa, m.nama)) LIKE LOWER(@searchText) OR
+                                    m.nim LIKE @searchText OR
+                                    LOWER(p.nama_prodi) LIKE LOWER(@searchText) OR
+                                    LOWER(mk.nama_matakuliah) LIKE LOWER(@searchText) OR
+                                    LOWER(fa.status) LIKE LOWER(@searchText)
+                                )";
+                                break;
+                        }
+                    }
+
+                    string fullQuery = baseQuery + whereClause + " ORDER BY fa.tanggal DESC, fa.waktu DESC";
+
+                    using (var cmd = new NpgsqlCommand(fullQuery, conn))
+                    {
+                        if (!string.IsNullOrEmpty(searchText))
+                        {
+                            cmd.Parameters.AddWithValue("@searchText", "%" + searchText + "%");
+                        }
+
+                        using (var adapter = new NpgsqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            adapter.Fill(dt);
+
+                            searchResultGrid.DataSource = dt;
+                            searchResultLabel.Text = $"📊 Hasil pencarian: {dt.Rows.Count} data ditemukan";
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error performing search: " + ex.Message, "Search Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void SaveButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (studentComboBox.SelectedItem == null || subjectComboBox.SelectedItem == null)
+                {
+                    MessageBox.Show("Harap pilih mahasiswa dan mata kuliah terlebih dahulu!", "Input Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                ComboBoxItem selectedStudent = (ComboBoxItem)studentComboBox.SelectedItem;
+                ComboBoxItem selectedSubject = (ComboBoxItem)subjectComboBox.SelectedItem;
+
+                using (var conn = Database.GetConnection())
+                {
+                    conn.Open();
+
+                    // Get student name
+                    string getStudentQuery = "SELECT nama FROM Mahasiswa WHERE nim = @nim";
+                    string studentName = "";
+                    using (var cmd = new NpgsqlCommand(getStudentQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@nim", selectedStudent.Value);
+                        studentName = cmd.ExecuteScalar()?.ToString() ?? "";
+                    }
+
+                    // Get valid NIP from MataKuliah table (dosen pengampu mata kuliah)
+                    string getDosenQuery = @"
+                SELECT mk.nip 
+                FROM MataKuliah mk 
+                WHERE mk.matakuliah_id = @matakuliah_id 
+                AND mk.nip IS NOT NULL";
+
+                    string dosenNip = null;
+                    string dosenName = "Dosen Pengampu"; // Default nama dosen
+
+                    using (var cmd = new NpgsqlCommand(getDosenQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@matakuliah_id", int.Parse(selectedSubject.Value));
+                        dosenNip = cmd.ExecuteScalar()?.ToString();
+                    }
+
+                    // Jika tidak ada NIP di mata kuliah, ambil NIP pertama dari tabel Dosen
+                    if (string.IsNullOrEmpty(dosenNip))
+                    {
+                        string getFirstDosenQuery = "SELECT nip FROM Dosen LIMIT 1";
+                        using (var cmd = new NpgsqlCommand(getFirstDosenQuery, conn))
+                        {
+                            dosenNip = cmd.ExecuteScalar()?.ToString();
+                        }
+                    }
+
+                    // Jika masih tidak ada, buat NIP default (pastikan ada di database)
+                    if (string.IsNullOrEmpty(dosenNip))
+                    {
+                        // Coba insert dosen default jika belum ada
+                        string checkDefaultQuery = "SELECT COUNT(*) FROM Dosen WHERE nip = 'DEFAULT001'";
+                        using (var cmd = new NpgsqlCommand(checkDefaultQuery, conn))
+                        {
+                            int count = Convert.ToInt32(cmd.ExecuteScalar());
+                            if (count == 0)
+                            {
+                                string insertDefaultQuery = "INSERT INTO Dosen (nip) VALUES ('DEFAULT001')";
+                                using (var insertCmd = new NpgsqlCommand(insertDefaultQuery, conn))
+                                {
+                                    insertCmd.ExecuteNonQuery();
+                                }
+                            }
+                        }
+                        dosenNip = "DEFAULT001";
+                        dosenName = "Dosen Default";
+                    }
+
+                    // Jika masih tidak ada dosen, beri peringatan
+                    if (string.IsNullOrEmpty(dosenNip))
+                    {
+                        MessageBox.Show("Tidak ada data dosen yang valid di database!", "Data Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    string insertQuery = @"
+                INSERT INTO Form_Absensi (nim, nama_mahasiswa, nip, nama_dosen, tanggal, waktu, status, matakuliah_id)
+                VALUES (@nim, @nama_mahasiswa, @nip, @nama_dosen, @tanggal, @waktu, @status, @matakuliah_id)";
+
+                    using (var cmd = new NpgsqlCommand(insertQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@nim", selectedStudent.Value);
+                        cmd.Parameters.AddWithValue("@nama_mahasiswa", studentName);
+                        cmd.Parameters.AddWithValue("@nip", dosenNip);
+                        cmd.Parameters.AddWithValue("@nama_dosen", dosenName);
+                        cmd.Parameters.AddWithValue("@tanggal", datePicker.Value.Date);
+                        cmd.Parameters.AddWithValue("@waktu", timePicker.Value.TimeOfDay);
+                        cmd.Parameters.AddWithValue("@status", statusComboBox.SelectedItem.ToString());
+                        cmd.Parameters.AddWithValue("@matakuliah_id", int.Parse(selectedSubject.Value));
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                MessageBox.Show("Data absensi berhasil disimpan!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LoadCreatePreviewData();
+                ClearFormInputs();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error saving data: " + ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ClearButton_Click(object sender, EventArgs e)
+        {
+            ClearFormInputs();
+        }
+
+        private void ClearFormInputs()
+        {
+            studentComboBox.SelectedIndex = -1;
+            subjectComboBox.SelectedIndex = -1;
+            statusComboBox.SelectedIndex = 0;
+            datePicker.Value = DateTime.Now;
+            timePicker.Value = DateTime.Now;
+        }
+
+        private void DeleteButton_Click(object sender, EventArgs e)
+        {
+            if (deleteGrid.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Harap pilih data yang ingin dihapus!", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DialogResult result = MessageBox.Show(
+                $"Apakah Anda yakin ingin menghapus {deleteGrid.SelectedRows.Count} data absensi?",
+                "Confirm Delete",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    using (var conn = Database.GetConnection())
+                    {
+                        conn.Open();
+
+                        foreach (DataGridViewRow row in deleteGrid.SelectedRows)
+                        {
+                            int idAbsensi = Convert.ToInt32(row.Cells["ID"].Value);
+
+                            string deleteQuery = "DELETE FROM Form_Absensi WHERE id_absensi = @id";
+                            using (var cmd = new NpgsqlCommand(deleteQuery, conn))
+                            {
+                                cmd.Parameters.AddWithValue("@id", idAbsensi);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+
+                    MessageBox.Show($"{deleteGrid.SelectedRows.Count} data berhasil dihapus!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LoadDeleteData();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error deleting data: " + ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void DeleteGrid_SelectionChanged(object sender, EventArgs e)
+        {
+            deleteStatusLabel.Text = $"📊 {deleteGrid.SelectedRows.Count} data terpilih untuk dihapus";
+        }
+
+        private void ExportButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*";
+                saveFileDialog.FileName = $"attendance_data_{DateTime.Now:yyyyMMdd}.csv";
+
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    ExportDataToCSV(attendanceGrid, saveFileDialog.FileName);
+                    MessageBox.Show("Data berhasil diekspor!", "Export Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error exporting data: " + ex.Message, "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ExportDataToCSV(DataGridView grid, string fileName)
+        {
+            StringBuilder csv = new StringBuilder();
+
+            // Header
+            for (int i = 0; i < grid.Columns.Count; i++)
+            {
+                csv.Append(grid.Columns[i].HeaderText);
+                if (i < grid.Columns.Count - 1)
+                    csv.Append(",");
+            }
+            csv.AppendLine();
+
+            // Data rows
+            foreach (DataGridViewRow row in grid.Rows)
+            {
+                for (int i = 0; i < grid.Columns.Count; i++)
+                {
+                    csv.Append(row.Cells[i].Value?.ToString() ?? "");
+                    if (i < grid.Columns.Count - 1)
+                        csv.Append(",");
+                }
+                csv.AppendLine();
+            }
+
+            System.IO.File.WriteAllText(fileName, csv.ToString());
+        }
+
+        // Navigation methods
+        private void ShowPanel(Panel panelToShow)
+        {
+            // Hide all panels
+            mainPanel.Visible = false;
+            searchPanel.Visible = false;
+            createPanel.Visible = false;
+            deletePanel.Visible = false;
+
+            // Show selected panel
+            panelToShow.Visible = true;
+            panelToShow.BringToFront();
+        }
+
+        // Sidebar navigation event handlers (these should be connected to your sidebar buttons)
+        private void HomeButton_Click(object sender, EventArgs e)
+        {
+            ShowPanel(mainPanel);
+            LoadTodayAttendance();
+        }
+
+        private void search_Click(object sender, EventArgs e)
+        {
+            ShowPanel(searchPanel);
+        }
+
+        private void create_Click(object sender, EventArgs e)
+        {
+            ShowPanel(createPanel);
+            LoadCreatePreviewData();
+            LoadStudentsForComboBox();
+            LoadSubjectsForComboBox();
+
+        }
+
+        private void delete_Click(object sender, EventArgs e)
+        {
+            ShowPanel(deletePanel);
+            LoadDeleteData();
+        }
+
+        private void dosenUI_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            refreshTimer?.Stop();
+            refreshTimer?.Dispose();
+        }
+
+        // Helper class for ComboBox items
+        public class ComboBoxItem
+        {
+            public string Text { get; set; }
+            public string Value { get; set; }
+
+            public override string ToString()
+            {
+                return Text;
+            }
+        }
+
+
+        private void menucontainer_Paint(object sender, PaintEventArgs e) { }
+
+        private void button8_Click(object sender, EventArgs e) { }
 
         private void sidebartransition_Tick(object sender, EventArgs e)
         {
@@ -573,17 +1290,26 @@ namespace project_maentry
                 }
             }
 
-            // Adjust main panel position ketika sidebar berubah ukuran
-            if (mainPanel != null)
+            // Penyesuaian ulang untuk semua panel
+            AdjustPanelLayout(mainPanel);
+            AdjustPanelLayout(searchPanel);
+            AdjustPanelLayout(createPanel);
+            AdjustPanelLayout(deletePanel);
+        }
+
+        private void AdjustPanelLayout(Panel panel)
+        {
+            if (panel != null)
             {
-                mainPanel.Location = new Point(sidebar.Width + 10, panel1.Height + 10);
-                mainPanel.Size = new Size(this.Width - sidebar.Width - 30, this.Height - panel1.Height - 50);
+                panel.Location = new Point(sidebar.Width + 10, panel1.Height + 10);
+                panel.Size = new Size(this.Width - sidebar.Width - 30, this.Height - panel1.Height - 50);
             }
         }
 
-        private void menubutton_Click(object sender, EventArgs e)
+        private void home_Click(object sender, EventArgs e)
         {
-            sidebartimer.Start();
+            ShowPanel(mainPanel);
+            LoadTodayAttendance(); // panggil fungsi Home
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -597,49 +1323,15 @@ namespace project_maentry
             Application.Exit();
         }
 
-        // Method untuk cleanup timer saat form ditutup
-        private void dosenUI_FormClosed(object sender, FormClosedEventArgs e)
+        private void menubutton_Click(object sender, EventArgs e)
         {
-            if (refreshTimer != null)
-            {
-                refreshTimer.Stop();
-                refreshTimer.Dispose();
-            }
+            sidebartimer.Start();
         }
 
-        // Method tambahan untuk kontrol manual
-        public void ForceRefreshData()
+        private void dosenUI_Load(object sender, EventArgs e)
         {
-            if (mainPanel != null && mainPanel.Visible)
-            {
-                LoadTodayAttendance();
-            }
-        }
-
-        public void StartMonitoring()
-        {
-            if (!refreshTimer.Enabled)
-            {
-                refreshTimer.Start();
-                if (statusLabel != null)
-                {
-                    statusLabel.Text = "🟢 Status: Monitoring aktif";
-                    statusLabel.ForeColor = Color.Green;
-                }
-            }
-        }
-
-        public void StopMonitoring()
-        {
-            if (refreshTimer.Enabled)
-            {
-                refreshTimer.Stop();
-                if (statusLabel != null)
-                {
-                    statusLabel.Text = "⏸ Status: Monitoring dihentikan";
-                    statusLabel.ForeColor = Color.Orange;
-                }
-            }
+            ShowPanel(mainPanel); // default tampilkan home
+            LoadTodayAttendance();
         }
     }
 }
