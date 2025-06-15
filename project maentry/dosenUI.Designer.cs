@@ -33,7 +33,6 @@ namespace project_maentry
             panel1 = new System.Windows.Forms.Panel();
             label1 = new System.Windows.Forms.Label();
             menubutton = new System.Windows.Forms.PictureBox();
-            backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             sidebar = new System.Windows.Forms.FlowLayoutPanel();
             panel3 = new System.Windows.Forms.Panel();
             home = new System.Windows.Forms.Button();
@@ -72,28 +71,26 @@ namespace project_maentry
             panel1.Controls.Add(menubutton);
             panel1.Dock = System.Windows.Forms.DockStyle.Top;
             panel1.Location = new System.Drawing.Point(0, 0);
-            panel1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             panel1.Name = "panel1";
-            panel1.Size = new System.Drawing.Size(1483, 69);
+            panel1.Size = new System.Drawing.Size(1187, 55);
             panel1.TabIndex = 0;
             // 
             // label1
             // 
             label1.AutoSize = true;
             label1.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
-            label1.Location = new System.Drawing.Point(58, 19);
+            label1.Location = new System.Drawing.Point(46, 15);
             label1.Name = "label1";
-            label1.Size = new System.Drawing.Size(243, 28);
+            label1.Size = new System.Drawing.Size(210, 23);
             label1.TabIndex = 1;
             label1.Text = "MENU DOSEN | MAENTRY";
             // 
             // menubutton
             // 
             menubutton.Image = Properties.Resources.icons8_menu_50;
-            menubutton.Location = new System.Drawing.Point(3, 10);
-            menubutton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            menubutton.Location = new System.Drawing.Point(3, 8);
             menubutton.Name = "menubutton";
-            menubutton.Size = new System.Drawing.Size(51, 52);
+            menubutton.Size = new System.Drawing.Size(41, 42);
             menubutton.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             menubutton.TabIndex = 1;
             menubutton.TabStop = false;
@@ -111,22 +108,20 @@ namespace project_maentry
             sidebar.Controls.Add(panel10);
             sidebar.Controls.Add(panel7);
             sidebar.Dock = System.Windows.Forms.DockStyle.Left;
-            sidebar.Location = new System.Drawing.Point(0, 69);
-            sidebar.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            sidebar.MaximumSize = new System.Drawing.Size(148, 0);
-            sidebar.MinimumSize = new System.Drawing.Size(50, 0);
+            sidebar.Location = new System.Drawing.Point(0, 55);
+            sidebar.MaximumSize = new System.Drawing.Size(221, 0);
+            sidebar.MinimumSize = new System.Drawing.Size(52, 0);
             sidebar.Name = "sidebar";
-            sidebar.Size = new System.Drawing.Size(148, 717);
+            sidebar.Size = new System.Drawing.Size(52, 574);
             sidebar.TabIndex = 1;
             sidebar.Paint += menucontainer_Paint;
             // 
             // panel3
             // 
             panel3.Controls.Add(home);
-            panel3.Location = new System.Drawing.Point(3, 4);
-            panel3.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            panel3.Location = new System.Drawing.Point(3, 3);
             panel3.Name = "panel3";
-            panel3.Size = new System.Drawing.Size(273, 75);
+            panel3.Size = new System.Drawing.Size(219, 60);
             panel3.TabIndex = 5;
             // 
             // home
@@ -134,12 +129,11 @@ namespace project_maentry
             home.BackColor = System.Drawing.Color.LightSkyBlue;
             home.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             home.ForeColor = System.Drawing.SystemColors.ControlText;
-            home.Image = (System.Drawing.Image)resources.GetObject("home.Image");
+            home.Image = Properties.Resources.icons8_home_50;
             home.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            home.Location = new System.Drawing.Point(-5, -11);
-            home.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            home.Location = new System.Drawing.Point(-8, -9);
             home.Name = "home";
-            home.Size = new System.Drawing.Size(297, 106);
+            home.Size = new System.Drawing.Size(237, 85);
             home.TabIndex = 4;
             home.Text = "Home";
             home.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -149,10 +143,9 @@ namespace project_maentry
             // panel4
             // 
             panel4.Controls.Add(search);
-            panel4.Location = new System.Drawing.Point(3, 87);
-            panel4.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            panel4.Location = new System.Drawing.Point(3, 69);
             panel4.Name = "panel4";
-            panel4.Size = new System.Drawing.Size(291, 75);
+            panel4.Size = new System.Drawing.Size(233, 60);
             panel4.TabIndex = 8;
             // 
             // search
@@ -162,10 +155,9 @@ namespace project_maentry
             search.ForeColor = System.Drawing.SystemColors.ControlText;
             search.Image = (System.Drawing.Image)resources.GetObject("search.Image");
             search.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            search.Location = new System.Drawing.Point(-7, -14);
-            search.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            search.Location = new System.Drawing.Point(-7, -11);
             search.Name = "search";
-            search.Size = new System.Drawing.Size(297, 106);
+            search.Size = new System.Drawing.Size(237, 85);
             search.TabIndex = 4;
             search.Text = "Search";
             search.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -175,10 +167,9 @@ namespace project_maentry
             // panel5
             // 
             panel5.Controls.Add(create);
-            panel5.Location = new System.Drawing.Point(3, 170);
-            panel5.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            panel5.Location = new System.Drawing.Point(3, 135);
             panel5.Name = "panel5";
-            panel5.Size = new System.Drawing.Size(242, 75);
+            panel5.Size = new System.Drawing.Size(194, 60);
             panel5.TabIndex = 5;
             // 
             // create
@@ -186,12 +177,11 @@ namespace project_maentry
             create.BackColor = System.Drawing.Color.LightSkyBlue;
             create.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             create.ForeColor = System.Drawing.SystemColors.ControlText;
-            create.Image = (System.Drawing.Image)resources.GetObject("create.Image");
+            create.Image = Properties.Resources.icons8_create_50;
             create.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            create.Location = new System.Drawing.Point(-7, -14);
-            create.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            create.Location = new System.Drawing.Point(-6, -11);
             create.Name = "create";
-            create.Size = new System.Drawing.Size(264, 106);
+            create.Size = new System.Drawing.Size(212, 85);
             create.TabIndex = 4;
             create.Text = "Create";
             create.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -201,10 +191,9 @@ namespace project_maentry
             // panel2
             // 
             panel2.Controls.Add(delete);
-            panel2.Location = new System.Drawing.Point(3, 253);
-            panel2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            panel2.Location = new System.Drawing.Point(3, 201);
             panel2.Name = "panel2";
-            panel2.Size = new System.Drawing.Size(242, 75);
+            panel2.Size = new System.Drawing.Size(194, 60);
             panel2.TabIndex = 3;
             // 
             // delete
@@ -214,10 +203,9 @@ namespace project_maentry
             delete.ForeColor = System.Drawing.SystemColors.ControlText;
             delete.Image = (System.Drawing.Image)resources.GetObject("delete.Image");
             delete.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            delete.Location = new System.Drawing.Point(-7, -10);
-            delete.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            delete.Location = new System.Drawing.Point(-7, -8);
             delete.Name = "delete";
-            delete.Size = new System.Drawing.Size(457, 101);
+            delete.Size = new System.Drawing.Size(365, 81);
             delete.TabIndex = 4;
             delete.Text = "Delete";
             delete.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -227,10 +215,9 @@ namespace project_maentry
             // panel9
             // 
             panel9.Controls.Add(button8);
-            panel9.Location = new System.Drawing.Point(3, 336);
-            panel9.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            panel9.Location = new System.Drawing.Point(3, 267);
             panel9.Name = "panel9";
-            panel9.Size = new System.Drawing.Size(242, 75);
+            panel9.Size = new System.Drawing.Size(194, 60);
             panel9.TabIndex = 5;
             // 
             // button8
@@ -239,10 +226,9 @@ namespace project_maentry
             button8.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             button8.ForeColor = System.Drawing.SystemColors.ControlText;
             button8.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            button8.Location = new System.Drawing.Point(-4, -18);
-            button8.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            button8.Location = new System.Drawing.Point(-4, -14);
             button8.Name = "button8";
-            button8.Size = new System.Drawing.Size(264, 106);
+            button8.Size = new System.Drawing.Size(212, 85);
             button8.TabIndex = 4;
             button8.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             button8.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -252,10 +238,9 @@ namespace project_maentry
             // panel8
             // 
             panel8.Controls.Add(button3);
-            panel8.Location = new System.Drawing.Point(3, 419);
-            panel8.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            panel8.Location = new System.Drawing.Point(3, 333);
             panel8.Name = "panel8";
-            panel8.Size = new System.Drawing.Size(242, 75);
+            panel8.Size = new System.Drawing.Size(194, 60);
             panel8.TabIndex = 5;
             // 
             // button3
@@ -264,10 +249,9 @@ namespace project_maentry
             button3.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             button3.ForeColor = System.Drawing.SystemColors.ControlText;
             button3.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            button3.Location = new System.Drawing.Point(-4, -18);
-            button3.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            button3.Location = new System.Drawing.Point(-4, -14);
             button3.Name = "button3";
-            button3.Size = new System.Drawing.Size(264, 106);
+            button3.Size = new System.Drawing.Size(212, 85);
             button3.TabIndex = 5;
             button3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             button3.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -276,10 +260,9 @@ namespace project_maentry
             // panel10
             // 
             panel10.Controls.Add(button4);
-            panel10.Location = new System.Drawing.Point(3, 502);
-            panel10.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            panel10.Location = new System.Drawing.Point(3, 399);
             panel10.Name = "panel10";
-            panel10.Size = new System.Drawing.Size(242, 75);
+            panel10.Size = new System.Drawing.Size(194, 60);
             panel10.TabIndex = 5;
             // 
             // button4
@@ -288,10 +271,9 @@ namespace project_maentry
             button4.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             button4.ForeColor = System.Drawing.SystemColors.ControlText;
             button4.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            button4.Location = new System.Drawing.Point(-4, -22);
-            button4.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            button4.Location = new System.Drawing.Point(-4, -18);
             button4.Name = "button4";
-            button4.Size = new System.Drawing.Size(264, 105);
+            button4.Size = new System.Drawing.Size(212, 84);
             button4.TabIndex = 4;
             button4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             button4.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -300,10 +282,9 @@ namespace project_maentry
             // panel7
             // 
             panel7.Controls.Add(button2);
-            panel7.Location = new System.Drawing.Point(3, 585);
-            panel7.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            panel7.Location = new System.Drawing.Point(3, 465);
             panel7.Name = "panel7";
-            panel7.Size = new System.Drawing.Size(242, 75);
+            panel7.Size = new System.Drawing.Size(194, 60);
             panel7.TabIndex = 5;
             // 
             // button2
@@ -313,10 +294,9 @@ namespace project_maentry
             button2.ForeColor = System.Drawing.SystemColors.ControlText;
             button2.Image = (System.Drawing.Image)resources.GetObject("button2.Image");
             button2.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            button2.Location = new System.Drawing.Point(-5, -16);
-            button2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            button2.Location = new System.Drawing.Point(-5, -13);
             button2.Name = "button2";
-            button2.Size = new System.Drawing.Size(264, 106);
+            button2.Size = new System.Drawing.Size(212, 85);
             button2.TabIndex = 4;
             button2.Text = "Logout";
             button2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -331,12 +311,11 @@ namespace project_maentry
             // 
             // dosenUI
             // 
-            AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
+            AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(1483, 786);
+            ClientSize = new System.Drawing.Size(1187, 629);
             Controls.Add(sidebar);
             Controls.Add(panel1);
-            Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             Name = "dosenUI";
             Text = "dosen";
             Load += dosenUI_Load;
@@ -361,7 +340,6 @@ namespace project_maentry
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox menubutton;
-        private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.FlowLayoutPanel sidebar;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Button delete;
