@@ -5,7 +5,7 @@ namespace maentry
 {
     public class Database
     {
-        private static string connString = "Host=localhost;Port=5432;Username=postgres;Password=nafariel01;Database=MaEntryDB";
+        private static string connString = "Host=localhost;Port=5432;Username=postgres;Password=alan;Database=MaentryDB";
 
         public static NpgsqlConnection GetConnection()
         {
