@@ -582,15 +582,16 @@ namespace project_maentry
                 return;
             }
 
-            // Dialog dengan hanya 2 opsi: Hadir dan Izin
+            // Dialog dengan 3 opsi: Hadir, Izin, dan Sakit
             DialogResult result = MessageBox.Show(
                 $"Mata Kuliah: {mataKuliah}\n" +
                 $"Dosen: {namaDosen}\n\n" +
                 "Pilih status absensi:\n\n" +
                 "YES = Hadir\n" +
-                "NO = Izin",
+                "NO = Izin\n" +
+                "CANCEL = Sakit",
                 "Absensi",
-                MessageBoxButtons.YesNo,
+                MessageBoxButtons.YesNoCancel,
                 MessageBoxIcon.Question);
 
             string status = "";
@@ -602,8 +603,11 @@ namespace project_maentry
                 case DialogResult.No:
                     status = "izin";
                     break;
+                case DialogResult.Cancel:
+                    status = "sakit";
+                    break;
                 default:
-                    return; // User cancel/close dialog
+                    return; // User close dialog with X button
             }
 
             SaveAttendance(jadwalId, status, namaDosen);
