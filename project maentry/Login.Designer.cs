@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Login));
             pictureBox1 = new System.Windows.Forms.PictureBox();
             label1 = new System.Windows.Forms.Label();
             pictureBox2 = new System.Windows.Forms.PictureBox();
@@ -50,10 +51,12 @@
             // 
             // pictureBox1
             // 
-            pictureBox1.Location = new System.Drawing.Point(91, 25);
+            pictureBox1.Image = (System.Drawing.Image)resources.GetObject("pictureBox1.Image");
+            pictureBox1.Location = new System.Drawing.Point(85, 25);
             pictureBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new System.Drawing.Size(77, 71);
+            pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             // 
@@ -204,7 +207,7 @@
             lblUsername.ForeColor = System.Drawing.Color.Black;
             lblUsername.Location = new System.Drawing.Point(21, 160);
             lblUsername.Name = "lblUsername";
-            lblUsername.Size = new System.Drawing.Size(87, 23);
+            lblUsername.Size = new System.Drawing.Size(89, 23);
             lblUsername.TabIndex = 13;
             lblUsername.Text = "Username";
             // 
@@ -216,7 +219,7 @@
             lblPassword.ForeColor = System.Drawing.Color.Black;
             lblPassword.Location = new System.Drawing.Point(21, 228);
             lblPassword.Name = "lblPassword";
-            lblPassword.Size = new System.Drawing.Size(82, 23);
+            lblPassword.Size = new System.Drawing.Size(85, 23);
             lblPassword.TabIndex = 14;
             lblPassword.Text = "Password";
             // 

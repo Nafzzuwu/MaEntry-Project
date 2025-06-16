@@ -74,6 +74,7 @@ namespace project_maentry
             }
         }
 
+
         private void InitializeContentPanels()
         {
             contentPanel = new Panel();
@@ -424,6 +425,8 @@ namespace project_maentry
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+
 
         // Method baru untuk update status menjadi alpa secara otomatis
         private void UpdateAttendanceStatusToAlpa(int jadwalId)
