@@ -46,37 +46,44 @@ namespace project_maentry
             panel2.SuspendLayout();
             panel4.SuspendLayout();
             SuspendLayout();
-
+            // 
             // panel1
+            // 
             panel1.BackColor = System.Drawing.Color.LightSkyBlue;
             panel1.Controls.Add(menu);
             panel1.Controls.Add(label1);
             panel1.Dock = System.Windows.Forms.DockStyle.Top;
             panel1.Font = new System.Drawing.Font("Segoe UI", 10F);
             panel1.Location = new System.Drawing.Point(0, 0);
+            panel1.Margin = new System.Windows.Forms.Padding(4);
             panel1.Name = "panel1";
-            panel1.Size = new System.Drawing.Size(1186, 53);
+            panel1.Size = new System.Drawing.Size(1482, 66);
             panel1.TabIndex = 0;
-
+            // 
             // menu
+            // 
             menu.Image = Properties.Resources.icons8_menu_50;
-            menu.Location = new System.Drawing.Point(5, 6);
+            menu.Location = new System.Drawing.Point(6, 8);
+            menu.Margin = new System.Windows.Forms.Padding(4);
             menu.Name = "menu";
-            menu.Size = new System.Drawing.Size(37, 41);
+            menu.Size = new System.Drawing.Size(46, 51);
             menu.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             menu.TabIndex = 1;
             menu.TabStop = false;
             menu.Click += menu_Click;
-
+            // 
             // label1
+            // 
             label1.AutoSize = true;
-            label1.Location = new System.Drawing.Point(41, 13);
+            label1.Location = new System.Drawing.Point(51, 16);
+            label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             label1.Name = "label1";
-            label1.Size = new System.Drawing.Size(257, 23);
+            label1.Size = new System.Drawing.Size(299, 28);
             label1.TabIndex = 0;
             label1.Text = "MENU MAHASISWA | MAENTRY ";
-
+            // 
             // sidebar
+            // 
             sidebar.BackColor = System.Drawing.Color.LightSkyBlue;
             sidebar.Controls.Add(panel5);
             sidebar.Controls.Add(panel3);
@@ -87,126 +94,161 @@ namespace project_maentry
             sidebar.Controls.Add(panel7);
             sidebar.Controls.Add(panel4);
             sidebar.Dock = System.Windows.Forms.DockStyle.Left;
-            sidebar.Location = new System.Drawing.Point(0, 53);
-            sidebar.MaximumSize = new System.Drawing.Size(178, 0);
-            sidebar.MinimumSize = new System.Drawing.Size(52, 0);
+            sidebar.Location = new System.Drawing.Point(0, 66);
+            sidebar.Margin = new System.Windows.Forms.Padding(4);
+            sidebar.MaximumSize = new System.Drawing.Size(180, 0);
+            sidebar.MinimumSize = new System.Drawing.Size(45, 0);
             sidebar.Name = "sidebar";
-            sidebar.Size = new System.Drawing.Size(52, 619);
+            sidebar.Size = new System.Drawing.Size(45, 774);
             sidebar.TabIndex = 1;
             sidebar.Paint += flowLayoutPanel1_Paint;
-
+            // 
             // panel5
+            // 
             panel5.Controls.Add(button3);
-            panel5.Location = new System.Drawing.Point(3, 3);
+            panel5.Location = new System.Drawing.Point(4, 4);
+            panel5.Margin = new System.Windows.Forms.Padding(4);
             panel5.Name = "panel5";
-            panel5.Size = new System.Drawing.Size(175, 71);
+            panel5.Size = new System.Drawing.Size(219, 89);
             panel5.TabIndex = 4;
-
+            // 
             // button3
+            // 
             button3.BackColor = System.Drawing.Color.LightSkyBlue;
             button3.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            button3.Image = Properties.Resources.icons8_home_50;
+            button3.Image = (System.Drawing.Image)resources.GetObject("button3.Image");
             button3.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            button3.Location = new System.Drawing.Point(-7, -13);
+            button3.Location = new System.Drawing.Point(-9, -16);
+            button3.Margin = new System.Windows.Forms.Padding(4);
             button3.Name = "button3";
-            button3.Size = new System.Drawing.Size(230, 96);
+            button3.Size = new System.Drawing.Size(313, 120);
             button3.TabIndex = 2;
             button3.Text = "JADWAL";
+            button3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            button3.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             button3.UseVisualStyleBackColor = false;
-
+            // 
             // panel3
+            // 
             panel3.Controls.Add(search);
-            panel3.Location = new System.Drawing.Point(3, 80);
+            panel3.Location = new System.Drawing.Point(4, 101);
+            panel3.Margin = new System.Windows.Forms.Padding(4);
             panel3.Name = "panel3";
-            panel3.Size = new System.Drawing.Size(175, 71);
+            panel3.Size = new System.Drawing.Size(219, 89);
             panel3.TabIndex = 4;
-
+            // 
             // search
+            // 
             search.BackColor = System.Drawing.Color.LightSkyBlue;
             search.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             search.Image = (System.Drawing.Image)resources.GetObject("search.Image");
             search.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            search.Location = new System.Drawing.Point(-6, -13);
+            search.Location = new System.Drawing.Point(-9, -16);
+            search.Margin = new System.Windows.Forms.Padding(4);
             search.Name = "search";
-            search.Size = new System.Drawing.Size(229, 96);
+            search.Size = new System.Drawing.Size(286, 120);
             search.TabIndex = 2;
             search.Text = "ABSENSI";
+            search.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            search.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             search.UseVisualStyleBackColor = false;
-
+            // 
             // panel2
+            // 
             panel2.Controls.Add(history);
-            panel2.Location = new System.Drawing.Point(3, 157);
+            panel2.Location = new System.Drawing.Point(4, 198);
+            panel2.Margin = new System.Windows.Forms.Padding(4);
             panel2.Name = "panel2";
-            panel2.Size = new System.Drawing.Size(175, 71);
+            panel2.Size = new System.Drawing.Size(219, 89);
             panel2.TabIndex = 3;
-
+            // 
             // history
+            // 
             history.BackColor = System.Drawing.Color.LightSkyBlue;
             history.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             history.Image = (System.Drawing.Image)resources.GetObject("history.Image");
             history.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            history.Location = new System.Drawing.Point(-5, -13);
+            history.Location = new System.Drawing.Point(-8, -16);
+            history.Margin = new System.Windows.Forms.Padding(4);
             history.Name = "history";
-            history.Size = new System.Drawing.Size(228, 96);
+            history.Size = new System.Drawing.Size(285, 120);
             history.TabIndex = 2;
             history.Text = "HISTORY";
+            history.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            history.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             history.UseVisualStyleBackColor = false;
             history.Click += button1_Click;
-
+            // 
             // panel10
-            panel10.Location = new System.Drawing.Point(3, 234);
+            // 
+            panel10.Location = new System.Drawing.Point(4, 295);
+            panel10.Margin = new System.Windows.Forms.Padding(4);
             panel10.Name = "panel10";
-            panel10.Size = new System.Drawing.Size(223, 71);
+            panel10.Size = new System.Drawing.Size(279, 89);
             panel10.TabIndex = 5;
-
+            // 
             // panel9
-            panel9.Location = new System.Drawing.Point(3, 311);
+            // 
+            panel9.Location = new System.Drawing.Point(4, 392);
+            panel9.Margin = new System.Windows.Forms.Padding(4);
             panel9.Name = "panel9";
-            panel9.Size = new System.Drawing.Size(223, 71);
+            panel9.Size = new System.Drawing.Size(279, 89);
             panel9.TabIndex = 5;
-
+            // 
             // panel8
-            panel8.Location = new System.Drawing.Point(3, 388);
+            // 
+            panel8.Location = new System.Drawing.Point(4, 489);
+            panel8.Margin = new System.Windows.Forms.Padding(4);
             panel8.Name = "panel8";
-            panel8.Size = new System.Drawing.Size(223, 71);
+            panel8.Size = new System.Drawing.Size(279, 89);
             panel8.TabIndex = 5;
-
+            // 
             // panel7
-            panel7.Location = new System.Drawing.Point(3, 465);
+            // 
+            panel7.Location = new System.Drawing.Point(4, 586);
+            panel7.Margin = new System.Windows.Forms.Padding(4);
             panel7.Name = "panel7";
-            panel7.Size = new System.Drawing.Size(223, 71);
+            panel7.Size = new System.Drawing.Size(279, 89);
             panel7.TabIndex = 5;
-
+            // 
             // panel4
+            // 
             panel4.Controls.Add(logout);
-            panel4.Location = new System.Drawing.Point(3, 542);
+            panel4.Location = new System.Drawing.Point(4, 683);
+            panel4.Margin = new System.Windows.Forms.Padding(4);
             panel4.Name = "panel4";
-            panel4.Size = new System.Drawing.Size(175, 71);
+            panel4.Size = new System.Drawing.Size(219, 89);
             panel4.TabIndex = 4;
-
+            // 
             // logout
+            // 
             logout.BackColor = System.Drawing.Color.LightSkyBlue;
             logout.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             logout.Image = (System.Drawing.Image)resources.GetObject("logout.Image");
             logout.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            logout.Location = new System.Drawing.Point(-7, -13);
+            logout.Location = new System.Drawing.Point(-9, -16);
+            logout.Margin = new System.Windows.Forms.Padding(4);
             logout.Name = "logout";
-            logout.Size = new System.Drawing.Size(230, 96);
+            logout.Size = new System.Drawing.Size(288, 120);
             logout.TabIndex = 2;
-            logout.Text = "Logout";
+            logout.Text = "LOGOUT";
+            logout.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             logout.UseVisualStyleBackColor = false;
             logout.Click += logout_Click;
-
+            // 
             // sidebartimer
+            // 
             sidebartimer.Interval = 10;
             sidebartimer.Tick += sidebartransition_Tick;
-
+            // 
             // mahasiswaUI
-            AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
+            // 
+            AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(1186, 672);
+            ClientSize = new System.Drawing.Size(1482, 840);
             Controls.Add(sidebar);
             Controls.Add(panel1);
+            Margin = new System.Windows.Forms.Padding(4);
             Name = "mahasiswaUI";
             Text = "mahasiswaUI";
             Load += mahasiswaUI_Load;
