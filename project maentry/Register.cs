@@ -1,47 +1,41 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Windows.Forms;
-using maentry;
 using Npgsql;
+using maentry;
 
 namespace project_maentry
 {
     public partial class Register : Form
     {
+        // ABSTRAKSI + POLIMORFISME
+        private readonly IUserService _userService;
+        private readonly IProdiService _prodiService;
+
         public Register()
         {
             InitializeComponent();
-            LoadProdi(); // Load data prodi ke ComboBox
+            _userService = new UserService();
+            _prodiService = new ProdiService();
+
+            LoadProdi();
         }
 
         private void LoadProdi()
         {
             try
             {
-                using (var connection = Database.GetConnection())
+                List<KeyValuePair<int, string>> daftarProdi = _prodiService.GetAllProdi();
+                if (cmbProdi != null)
                 {
-                    connection.Open();
-                    string query = "SELECT prodi_id, nama_prodi FROM Prodi ORDER BY nama_prodi;";
-                    using (var cmd = new NpgsqlCommand(query, connection))
-                    {
-                        using (var reader = cmd.ExecuteReader())
-                        {
-                            // Pastikan ComboBox prodi ada di form
-                            if (cmbProdi != null)
-                            {
-                                cmbProdi.Items.Clear();
-                                cmbProdi.DisplayMember = "Value";
-                                cmbProdi.ValueMember = "Key";
+                    cmbProdi.Items.Clear();
+                    cmbProdi.DisplayMember = "Value";
+                    cmbProdi.ValueMember = "Key";
 
-                                while (reader.Read())
-                                {
-                                    cmbProdi.Items.Add(new KeyValuePair<int, string>(
-                                        reader.GetInt32("prodi_id"),
-                                        reader.GetString("nama_prodi")
-                                    ));
-                                }
-                            }
-                        }
+                    foreach (var prodi in daftarProdi)
+                    {
+                        cmbProdi.Items.Add(prodi);
                     }
                 }
             }
@@ -51,53 +45,29 @@ namespace project_maentry
             }
         }
 
-        // Method untuk mencari user_id yang kosong atau mendapatkan ID berikutnya
-        private int GetAvailableUserId(NpgsqlConnection connection, NpgsqlTransaction transaction)
-        {
-            // Cari user_id terkecil yang tidak digunakan
-            string findGapQuery = @"
-                SELECT COALESCE(MIN(t1.user_id + 1), 1) as next_id
-                FROM (
-                    SELECT 0 as user_id
-                    UNION ALL
-                    SELECT user_id FROM users
-                ) t1
-                LEFT JOIN users t2 ON t1.user_id + 1 = t2.user_id
-                WHERE t2.user_id IS NULL
-                AND t1.user_id + 1 > 0";
-
-            using (var cmd = new NpgsqlCommand(findGapQuery, connection, transaction))
-            {
-                var result = cmd.ExecuteScalar();
-                return Convert.ToInt32(result);
-            }
-        }
-
         private void btnrgs_Click(object sender, EventArgs e)
         {
             string nim = txtusername.Text.Trim();
             string password = txtpassword.Text;
-            string nama = txtNama.Text.Trim(); // Field nama mahasiswa
+            string nama = txtNama.Text.Trim();
             string role = "mahasiswa";
 
-            // Validasi input sederhana
+            // VALIDASI INPUT TEXT DULU
             if (string.IsNullOrEmpty(nim) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(nama))
             {
                 MessageBox.Show("NIM, nama, dan password tidak boleh kosong.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            // Validasi NIM harus berupa angka
             if (!long.TryParse(nim, out _))
             {
                 MessageBox.Show("NIM harus berupa angka saja.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            // Validasi panjang NIM dan password
-            if (nim.Length < 8 || nim.Length > 12)
+            if (nim.Length < 12)
             {
-                MessageBox.Show("NIM harus antara 8-12 digit.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("NIM harus 12 digit.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -107,7 +77,7 @@ namespace project_maentry
                 return;
             }
 
-            // Validasi prodi dipilih
+            // VALIDASI PRODI
             if (cmbProdi == null || cmbProdi.SelectedItem == null)
             {
                 MessageBox.Show("Silakan pilih Program Studi.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -119,91 +89,17 @@ namespace project_maentry
 
             try
             {
-                using (var connection = Database.GetConnection())
-                {
-                    connection.Open();
+                _userService.RegisterUser(nim, password, nama, role, prodiId);
 
-                    // Mulai transaksi untuk memastikan konsistensi data
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
-                        {
-                            // Periksa apakah NIM sudah ada di tabel Users
-                            string checkUserQuery = "SELECT COUNT(*) FROM users WHERE username = @username;";
-                            using (var checkCmd = new NpgsqlCommand(checkUserQuery, connection, transaction))
-                            {
-                                checkCmd.Parameters.AddWithValue("@username", nim);
-                                int exists = Convert.ToInt32(checkCmd.ExecuteScalar());
+                MessageBox.Show("Registrasi berhasil! Silakan login.", "Informasi", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                                if (exists > 0)
-                                {
-                                    MessageBox.Show("NIM sudah terdaftar!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    return;
-                                }
-                            }
+                txtusername.Text = "";
+                txtpassword.Text = "";
+                txtNama.Text = "";
+                cmbProdi.SelectedIndex = -1;
 
-                            // Periksa apakah NIM sudah ada di tabel Mahasiswa
-                            string checkMahasiswaQuery = "SELECT COUNT(*) FROM mahasiswa WHERE nim = @nim;";
-                            using (var checkCmd = new NpgsqlCommand(checkMahasiswaQuery, connection, transaction))
-                            {
-                                checkCmd.Parameters.AddWithValue("@nim", nim);
-                                int exists = Convert.ToInt32(checkCmd.ExecuteScalar());
-
-                                if (exists > 0)
-                                {
-                                    MessageBox.Show("NIM sudah terdaftar sebagai mahasiswa!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    return;
-                                }
-                            }
-
-                            // Dapatkan user_id yang tersedia (mengisi gap atau ID berikutnya)
-                            int availableUserId = GetAvailableUserId(connection, transaction);
-
-                            // Insert data ke tabel Users dengan user_id yang spesifik
-                            string insertUserQuery = "INSERT INTO users (user_id, username, password, role) VALUES (@user_id, @username, md5(@password), @role);";
-                            using (var cmd = new NpgsqlCommand(insertUserQuery, connection, transaction))
-                            {
-                                cmd.Parameters.AddWithValue("@user_id", availableUserId);
-                                cmd.Parameters.AddWithValue("@username", nim);
-                                cmd.Parameters.AddWithValue("@password", password);
-                                cmd.Parameters.AddWithValue("@role", role);
-                                cmd.ExecuteNonQuery();
-                            }
-
-                            // Insert data ke tabel Mahasiswa
-                            string insertMahasiswaQuery = "INSERT INTO mahasiswa (nim, nama, user_id, prodi_id) VALUES (@nim, @nama, @user_id, @prodi_id);";
-                            using (var cmd = new NpgsqlCommand(insertMahasiswaQuery, connection, transaction))
-                            {
-                                cmd.Parameters.AddWithValue("@nim", nim);
-                                cmd.Parameters.AddWithValue("@nama", nama);
-                                cmd.Parameters.AddWithValue("@user_id", availableUserId);
-                                cmd.Parameters.AddWithValue("@prodi_id", prodiId);
-                                cmd.ExecuteNonQuery();
-                            }
-
-                            // Commit transaksi jika semua berhasil
-                            transaction.Commit();
-
-                            MessageBox.Show($"Registrasi berhasil! Silakan login.", "Informasi", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                            // Clear form fields
-                            txtusername.Text = "";
-                            txtpassword.Text = "";
-                            txtNama.Text = "";
-                            if (cmbProdi != null) cmbProdi.SelectedIndex = -1;
-
-                            Login loginform = new Login();
-                            loginform.Show();
-                            this.Close();
-                        }
-                        catch (Exception)
-                        {
-                            // Rollback jika ada error
-                            transaction.Rollback();
-                            throw;
-                        }
-                    }
-                }
+                new Login().Show();
+                this.Close();
             }
             catch (Exception ex)
             {
@@ -211,14 +107,10 @@ namespace project_maentry
             }
         }
 
-        private void labelexitrgs_Click(object sender, EventArgs e)
-        {
-            Application.Exit();
-        }
+        private void labelexitrgs_Click(object sender, EventArgs e) => Application.Exit();
 
         private void label2_Click(object sender, EventArgs e)
         {
-            // Clear all form fields
             txtusername.Text = "";
             txtNama.Text = "";
             txtpassword.Text = "";
@@ -229,13 +121,121 @@ namespace project_maentry
             }
         }
 
-        private void cmbProdi_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        private void cmbProdi_SelectedIndexChanged(object sender, EventArgs e) { }
+    }
 
+    // ===== INTERFACE (POLIMORFISME) =====
+    public interface IUserService
+    {
+        void RegisterUser(string nim, string password, string nama, string role, int prodiId);
+    }
+
+    public interface IProdiService
+    {
+        List<KeyValuePair<int, string>> GetAllProdi();
+    }
+
+    // ===== BASE CLASS (INHERITANCE) =====
+    public class BaseService
+    {
+        protected NpgsqlConnection GetConnection()
+        {
+            return Database.GetConnection();
         }
     }
 
-    // Helper class untuk ComboBox
+    // ===== IMPLEMENTASI SERVICE USER (ABSTRAKSI + ENKAPSULASI) =====
+    public class UserService : BaseService, IUserService
+    {
+        public void RegisterUser(string nim, string password, string nama, string role, int prodiId)
+        {
+            using var conn = GetConnection();
+            conn.Open();
+            using var trx = conn.BeginTransaction();
+
+            if (UserExists(conn, trx, "mahasiswa", "nama", nama))
+                throw new Exception("Nama sudah terdaftar!");
+
+            if (UserExists(conn, trx, "mahasiswa", "nim", nim))
+                throw new Exception("NIM sudah terdaftar sebagai mahasiswa!");
+
+            int userId = GetAvailableUserId(conn, trx);
+
+            InsertUser(conn, trx, userId, nim, password, role);
+            InsertMahasiswa(conn, trx, nim, nama, userId, prodiId);
+
+            trx.Commit();
+        }
+
+        private bool UserExists(NpgsqlConnection conn, NpgsqlTransaction trx, string table, string column, string value)
+        {
+            string query = $"SELECT COUNT(*) FROM {table} WHERE {column} = @val;";
+            using var cmd = new NpgsqlCommand(query, conn, trx);
+            cmd.Parameters.AddWithValue("@val", value);
+            return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+        }
+
+        private int GetAvailableUserId(NpgsqlConnection conn, NpgsqlTransaction trx)
+        {
+            string sql = @"
+                SELECT COALESCE(MIN(t1.user_id + 1), 1) as next_id
+                FROM (
+                    SELECT 0 as user_id
+                    UNION ALL
+                    SELECT user_id FROM users
+                ) t1
+                LEFT JOIN users t2 ON t1.user_id + 1 = t2.user_id
+                WHERE t2.user_id IS NULL AND t1.user_id + 1 > 0";
+
+            using var cmd = new NpgsqlCommand(sql, conn, trx);
+            return Convert.ToInt32(cmd.ExecuteScalar());
+        }
+
+        private void InsertUser(NpgsqlConnection conn, NpgsqlTransaction trx, int id, string nim, string password, string role)
+        {
+            string sql = "INSERT INTO users (user_id, username, password, role) VALUES (@id, @nim, md5(@pass), @role)";
+            using var cmd = new NpgsqlCommand(sql, conn, trx);
+            cmd.Parameters.AddWithValue("@id", id);
+            cmd.Parameters.AddWithValue("@nim", nim);
+            cmd.Parameters.AddWithValue("@pass", password);
+            cmd.Parameters.AddWithValue("@role", role);
+            cmd.ExecuteNonQuery();
+        }
+
+        private void InsertMahasiswa(NpgsqlConnection conn, NpgsqlTransaction trx, string nim, string nama, int userId, int prodiId)
+        {
+            string sql = "INSERT INTO mahasiswa (nim, nama, user_id, prodi_id) VALUES (@nim, @nama, @uid, @pid)";
+            using var cmd = new NpgsqlCommand(sql, conn, trx);
+            cmd.Parameters.AddWithValue("@nim", nim);
+            cmd.Parameters.AddWithValue("@nama", nama);
+            cmd.Parameters.AddWithValue("@uid", userId);
+            cmd.Parameters.AddWithValue("@pid", prodiId);
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+    // ===== IMPLEMENTASI SERVICE PRODI =====
+    public class ProdiService : BaseService, IProdiService
+    {
+        public List<KeyValuePair<int, string>> GetAllProdi()
+        {
+            var list = new List<KeyValuePair<int, string>>();
+            using var conn = GetConnection();
+            conn.Open();
+
+            string sql = "SELECT prodi_id, nama_prodi FROM Prodi ORDER BY nama_prodi;";
+            using var cmd = new NpgsqlCommand(sql, conn);
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(new KeyValuePair<int, string>(reader.GetInt32(0), reader.GetString(1)));
+            }
+
+            return list;
+        }
+    }
+
+    // ENKAPSULASI: Digunakan untuk menampilkan prodi di ComboBox
     public struct KeyValuePair<TKey, TValue>
     {
         public TKey Key { get; }
@@ -247,9 +247,6 @@ namespace project_maentry
             Value = value;
         }
 
-        public override string ToString()
-        {
-            return Value?.ToString() ?? "";
-        }
+        public override string ToString() => Value?.ToString() ?? "";
     }
 }
